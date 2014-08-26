@@ -1,0 +1,103 @@
+@import "bootstrap";
+
+#content {
+	nav {
+		margin-bottom: .2em;
+	}
+	
+	div.alert {
+		margin: .5em;
+	}
+
+	table {
+		width: 100%;
+	
+		thead {
+			tr th.name {
+				width: 40%;
+			}
+			
+			tr th.tags {
+				width: 10%;
+			}
+			
+			tr th.lastUpdated {
+				width: 20%;
+			}
+			
+			tr th.type {
+				width: 20%;
+			}
+			
+			tr th.size {
+				width: 10%;
+			}
+		}
+	}
+	
+	.file-list {
+		.file:hover {
+			background-color: #e0f0ff;
+		}
+		
+		.file.selected {
+			background-color: #bbd8ff;
+		}
+	}
+	
+	/* list view */
+	tr.file {
+		img {
+			height: 30px;
+		}
+	}
+	
+	/* icon view */
+	span.file {
+		display: inline-block;
+		text-align: center;
+		margin: .5em;
+		
+		img {
+			width: 50px;
+		}
+		
+		a {
+			width: 80px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			display: block;
+		}
+	}
+		
+	.input-group {
+		width: 235px;
+	}
+}
+
+.input-group .glyphicon {
+	top: auto;
+	cursor: pointer;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 999px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
