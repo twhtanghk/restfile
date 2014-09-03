@@ -155,7 +155,7 @@ class UserListView extends View
 			liNodes += _.template element, user			
 		return _.template container, {liNodes: liNodes}
 		
-class UserSearchView extends View
+class UserSearchView extends Marionette.ItemView
 	searchTag: =>
 		container = """
 			<div class="left-inner-addon form-inline search">
@@ -202,6 +202,7 @@ class UserSearchView extends View
 		'change':			'refresh'
 		'remove':			'refresh'
 		'reset':			'refresh'
+		'sync':				'refresh'
 
 	refresh: ->
 		@$el.find('div#result').html @resultTag()

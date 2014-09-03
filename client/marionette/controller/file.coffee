@@ -11,6 +11,7 @@ scope =
 File = scope.model.File
 vent = require '../../vent.coffee'
 path = require 'path'
+userController = require './user.coffee'
 
 class DirInput extends Marionette.Layout
 	id:			'cwd'
@@ -179,6 +180,8 @@ class NavBar extends Marionette.Layout
 		'click #icon':						'icon'
 		'click #list':						'list'
 		'click #trash':						'trash'
+		'click #UserTagView':				'UserTagView'
+		'click #addUserTags':				'addUserTags'
 		
 	constructor: (opts) ->
 		home = new Backbone.Model
@@ -239,8 +242,17 @@ class NavBar extends Marionette.Layout
 			id:				'trash'
 			prependIcon: 	'trash'
 			title: 			'delete'
-		
-		btns = [home, newfile, newdir, addTags, removeTags, edit, upload, download, selectAll, deselectAll, icon, list, trash]
+		UserTagView = new Backbone.Model
+			id:				'UserTagView'
+			appendIcon:		'user'
+			title: 			'change User View'			
+		addUserTags = new Backbone.Model
+			id:				'addUserTags'
+			prependIcon:	'plus'
+			appendIcon:		'pushpin'
+			title: 			'create user tag'
+					
+		btns = [home, newfile, newdir, addTags, removeTags, edit, upload, download, selectAll, deselectAll, icon, list, trash, UserTagView, addUserTags]
 		@btns = new lib.BtnGrp	className: 'navbar-btn', collection: new Backbone.Collection btns   
 		
 		@views =
@@ -450,6 +462,36 @@ class NavBar extends Marionette.Layout
 						collection.refresh()
 					Promise.all(io).then(done, done)						
 		vent.trigger 'show:modal', {header: 'Delete File', body: form.render().el}
+
+	UserTagView: (event) ->
+		event.preventDefault()
+		vent.trigger 'list:user'
+		
+	addUserTags: (event) ->
+		event.preventDefault()
+
+		form = new Backbone.Form
+			schema:
+				tags:	{ type:	'Text', editorAttrs: {placeholder: 'P21, admin, ..., for IT security team'} }
+			template:	_.template """
+				<form id='tags' class="form-horizontal">
+					 <div data-fieldsets>
+					 </div>
+					 <button type='submit' class='btn btn-default'>
+					 	<span class="glyphicon glyphicon-floppy-disk"></span>
+					 	Add Tag
+					 </button>
+					 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				</form>
+			"""
+			events:
+				submit: (event) ->
+					event.preventDefault()
+					alert "addusertags"
+					newtags = form.getEditor('tags').getValue().split(',')
+					newtags = _.map newtags, (tag) ->
+						tag.trim()
+		vent.trigger 'show:modal', {header: 'Tag User', body: form.render().el}
 		
 class FileView extends Marionette.ItemView
 	tagName:	'tr'
@@ -589,9 +631,12 @@ class FileSearchView extends Marionette.Layout
 		
 	constructor: (opts) ->
 		super(opts)
+		@users = new scope.model.Users()
 		@views = 
 			navbar: new NavBar(collection: @collection)
 			file:	new FileListView(collection: @collection)
+			alluser:	new userController.UserSearchView(collection: @users)
+			
 		vent.on 'show:msg', (msg, type='other') =>
 			flash = new lib.FlashView {model: new Backbone.Model({type: type, msg: msg})}
 			flash.render().$el.insertAfter('nav')
@@ -601,6 +646,10 @@ class FileSearchView extends Marionette.Layout
 		vent.on 'list:file', =>
 			@views.file = new FileListView(collection: @collection)
 			@file.show @views.file
+		vent.on 'list:user', =>
+			@users.fetch()
+			@views.alluser = new userController.UserSearchView(collection: @users)
+			@file.show @views.alluser
 			
 	onRender: ->
 		@navbar.show @views.navbar

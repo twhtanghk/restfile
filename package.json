@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node_modules/coffee-script/bin/coffee --nodejs --debug app.coffee",
+    "start": "node node_modules/coffee-script/bin/coffee --nodejs --debug app.coffee",
     "dev": "grunt less browserify appcache",
     "prd": "grunt less browserify uglify copy appcache"
   },

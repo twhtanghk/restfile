@@ -37,6 +37,10 @@ ensurePermission = (p) ->
 		home = new RegExp "^#{user.username}"
 		filepath = req.params[0]
 		
+		# if user list, read allow
+		if p == 'user:list' or p == 'user:read'
+			return next()
+		
 		# if file/dir creation, check parent folder ownership and permission
 		if p == 'file:create'
 			filepath = path.dirname(req.body.path)

@@ -2,7 +2,7 @@ _ = require 'underscore'
 path = require 'path'
 
 proj = 'file'
-authServer = 'mob.myvnc.com'
+authServer = 'mppsrc.ogcio.hksarg'
 
 env =
 	user:

@@ -1,6 +1,6 @@
 proj = 'file'
 path = "/#{proj}"
-authServer = 'mob.myvnc.com'
+authServer = 'mppsrc.ogcio.hksarg'
 url = "https://#{authServer}/org"
 serverUrl =	"http://localhost:3000/#{proj}"
 
@@ -14,7 +14,7 @@ env =
 	file:
 		uploadDir:	"#{__dirname}/uploads"
 		mode:		parseInt('0700', 8)
-	dbUrl:		"mongodb://#{proj}rw:password@localhost/#{proj}"
+	dbUrl:		"mongodb://filerw:pass1234@localhost/file"
 	oauth2:
 		authorizationURL:	"#{url}/oauth2/authorize/"
 		tokenURL:			"#{url}/oauth2/token/"
@@ -25,7 +25,7 @@ env =
 		authURL:			"/auth/provider"
 		cbURL:				"/auth/provider/callback"
 		clientID:			"#{proj}DEVAuth"
-		clientSecret:		'password'
+		clientSecret:		'pass1234'
 		scope:		[
 			"https://#{authServer}/org/users"
 		]

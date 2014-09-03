@@ -13,7 +13,7 @@ fs = require 'fs'
 busboy = require 'connect-busboy'
 ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 
-dir = '/etc/ssl/certs'
+dir = 'D:/etc/ssl/certs'
 files = fs.readdirSync(dir).filter (file) -> /.*\.pem/i.test(file)
 files = files.map (file) -> "#{dir}/#{file}"
 ca = files.map (file) -> fs.readFileSync file
@@ -65,6 +65,8 @@ port = process.env.PORT || 3000
 
 require('zappajs') port, ->
 	@set 'view engine': 'jade'
+	@set 'views': __dirname + '/views'
+	
 	# strip url with prefix = env.path 
 	@use (req, res, next) ->
 		p = new RegExp('^' + env.path)
