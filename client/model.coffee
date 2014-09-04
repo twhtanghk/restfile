@@ -67,7 +67,16 @@ class User extends Model
 		@get 'username'
 		
 	homeDir: ->
-		"#{@get('username')}/" 
+		"#{@get('username')}/"
+	
+	toggleSelect: ->
+		@set('selected', not @get('selected'))
+		
+	select: ->
+		@set('selected', true)
+		
+	deselect: ->
+		@set('selected', false) 
 		
 class Users extends PageableCollection
 	url:		"#{env.path}/api/user"
@@ -75,7 +84,8 @@ class Users extends PageableCollection
 	comparator:	'username'
 	
 	model:	User
-	
+	selected: ->
+		@where selected: true
 	schema:
 		models:	{type: 'List', itemType: 'NestedModel', model: User }
 			

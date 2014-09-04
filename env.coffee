@@ -14,7 +14,7 @@ env =
 	file:
 		uploadDir:	"#{__dirname}/uploads"
 		mode:		parseInt('0700', 8)
-	dbUrl:		"mongodb://filerw:pass1234@localhost/file"
+	dbUrl:		"mongodb://filerw:password@localhost/file"
 	oauth2:
 		authorizationURL:	"#{url}/oauth2/authorize/"
 		tokenURL:			"#{url}/oauth2/token/"
