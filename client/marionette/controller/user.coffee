@@ -157,12 +157,16 @@ class UserListView extends View
 
 class UserView extends Marionette.ItemView
 	template: (data) =>
-		"<a>#{@model.toString()}</a>"
+		"""
+			<td><a>#{@model.toString()}</a></td>
+			<td><a>#{@model.get('Email')}</td>
+			<td></td>
+		"""
 			
 	events:
 		'click':				'select'
 		
-	tagName: 'li'
+	tagName: 'tr'
 	
 	className: 'user-sel'
 	
@@ -170,11 +174,24 @@ class UserView extends Marionette.ItemView
 		@model.toggleSelect()
 		@$el.toggleClass('selected', @model.get('selected'))
 		
-class UserSearchView extends Marionette.CollectionView
+class UserSearchView extends Marionette.CompositeView
+
+	template: (data) =>
+		"""
+			<table>
+				<thead>
+					<tr>
+						<th class='name'>Name</th>
+						<th class='email'>Email</th>
+						<th class='tags'>Tags</th>
+					</tr>
+				</thead>
+			</table>
+		"""
 	
 	itemView: UserView
 	
-	tagName: 'ul'
+	itemViewContainer: 'table'
 	
 	searchTag: =>
 		container = """

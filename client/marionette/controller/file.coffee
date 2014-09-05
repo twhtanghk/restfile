@@ -508,6 +508,7 @@ class FileView extends Marionette.ItemView
 		_.template tmpl, @model
 		
 	template: (data) =>
+		
 		tmpl = """
 			<td>
 				#{@tag()}
