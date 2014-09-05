@@ -67,7 +67,29 @@ class User extends Model
 		@get 'username'
 		
 	homeDir: ->
-		"#{@get('username')}/" 
+		"#{@get('username')}/"
+	
+	toggleSelect: ->
+		@set('selected', not @get('selected'))
+		
+	select: ->
+		@set('selected', true)
+		
+	deselect: ->
+		@set('selected', false)
+		
+	hasTag: (tag) ->
+		_.contains(@get('tags'), tag)	 
+		
+	addTag: (tag) ->
+		if not @hasTag(tag)
+			@get('tags').push(tag)
+		return @
+	
+	removeTag: (tag) ->
+		if @hasTag(tag)
+			@set 'tags', _.difference @get('tags'), tag
+		return @
 		
 class Users extends PageableCollection
 	url:		"#{env.path}/api/user"
@@ -76,8 +98,8 @@ class Users extends PageableCollection
 	
 	model:	User
 	
-	schema:
-		models:	{type: 'List', itemType: 'NestedModel', model: User }
+	selected: ->
+		@where selected: true
 			
 class AllUsers extends Backbone.Collection
 	url:		"#{env.path}/api/user/all"

@@ -37,8 +37,8 @@ ensurePermission = (p) ->
 		home = new RegExp "^#{user.username}"
 		filepath = req.params[0]
 		
-		# if user list, read allow
-		if p == 'user:list' or p == 'user:read'
+		# if user list, read, update tag allow
+		if p == 'user:list' or p == 'user:read' or p == 'user:update'
 			return next()
 		
 		# if file/dir creation, check parent folder ownership and permission
@@ -56,7 +56,7 @@ ensurePermission = (p) ->
 				if permitted
 					return next()
 				else res.json 401, error: 'Unauthorzied access'
-
+		
 module.exports =
 	field:				field
 	order:				order

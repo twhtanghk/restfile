@@ -13,7 +13,7 @@ fs = require 'fs'
 busboy = require 'connect-busboy'
 ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 
-dir = 'D:/etc/ssl/certs'
+dir = '/etc/ssl/certs'
 files = fs.readdirSync(dir).filter (file) -> /.*\.pem/i.test(file)
 files = files.map (file) -> "#{dir}/#{file}"
 ca = files.map (file) -> fs.readFileSync file
@@ -35,6 +35,7 @@ passport.use 'bearer', new bearer.Strategy {}, (token, done) ->
 		ca:		ca
 		headers:
 			Authorization:	"Bearer #{token}"
+	
 	http.get env.oauth2.verifyURL, opts, (err, res, body) ->
 		if err?
 			logger.error err
@@ -72,10 +73,10 @@ require('zappajs') port, ->
 		p = new RegExp('^' + env.path)
 		req.url = req.url.replace(p, '')
 		next()
-	@use 'logger', 'cookieParser', session:{secret:'keyboard cat'}, 'methodOverride'
+	@use 'logger', 'cookieParser', session:{secret:'keyboard cat'}, 'methodOverride', 'bodyParser'
 	@use busboy(immediate: true)
 	@use (req, res, next) ->
-		req.body = {}
+		req.body ?= {}
 		req.busboy?.on 'file', (fieldname, file, filename, encoding, mimetype) ->
 			_.extend req.body, filename: filename, file: file, contentType: mimetype
 		req.busboy?.on 'field', (key, value, keyTruncated, valueTruncated) ->

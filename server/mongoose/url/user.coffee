@@ -11,3 +11,6 @@ ensurePermission = lib.ensurePermission
 		
 	@get '/api/user/:id', bearer, ensurePermission('user:read'), ->
 		controller.User.read(@request, @response)
+		
+	@put '/api/user/:id', bearer, ensurePermission('user:update'), ->
+		controller.User.update(@request, @response)	

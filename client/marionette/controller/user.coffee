@@ -154,8 +154,31 @@ class UserListView extends View
 		@collection.each (user, key, list) ->
 			liNodes += _.template element, user			
 		return _.template container, {liNodes: liNodes}
+
+class UserView extends Marionette.ItemView
+	template: (data) =>
+		"<a>#{@model.toString()}</a>"
+			
+	events:
+		'click':				'select'
 		
-class UserSearchView extends Marionette.ItemView
+	tagName: 'li'
+	
+	className: 'user-sel'
+	
+	select: (event) ->
+		@model.toggleSelect()
+		@$el.toggleClass('selected', @model.get('selected'))
+	
+	collectionEvents:
+		'sync':		'render'	
+		
+class UserSearchView extends Marionette.CollectionView
+	
+	itemView: UserView
+	
+	tagName: 'ul'
+	
 	searchTag: =>
 		container = """
 			<div class="left-inner-addon form-inline search">
@@ -179,7 +202,7 @@ class UserSearchView extends Marionette.ItemView
 			</ul>
 		"""
 		element = """
-			<li id='<%=obj.get('_id')%>'>
+			<li class='user-sel' id='<%=obj.get('_id')%>'>
 				<%=obj.toString()%></a>
 			</li>
 		"""
@@ -187,16 +210,13 @@ class UserSearchView extends Marionette.ItemView
 		@collection.each (item, key, list) ->
 			liNodes += _.template element, item			
 		return _.template container, {collection: @collection, liNodes: liNodes}
-		
-	template: (data) =>
-		_.template @searchTag(), result: @resultTag()
-		
+				
 	events:
 		'input .user-search':				'search'
 		'click .user-list li':				'select'
 		'click .user-pager li.previous':	'prev'
-		'click .user-pager li.next':		'next'
-		
+		'click .user-pager li.next':		'next'		
+
 	collectionEvents:
 		'add':				'refresh'
 		'change':			'refresh'
@@ -211,8 +231,9 @@ class UserSearchView extends Marionette.ItemView
 		@collection.search $(event.target).val()
 		
 	select: (event) ->
-		@router.navigate "#user/read/#{$(event.target).attr('id')}", trigger: true
-		
+		selecteduser = @collection.findWhere({_id: $(event.target).attr('id')})
+		selecteduser.toggleSelect()
+				
 	prev: (event) ->
 		if $(event.currentTarget).hasClass('disabled')
 			return false

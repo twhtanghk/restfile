@@ -42,7 +42,21 @@ class User
 		model.User.findById(id).populate('createdBy updatedBy').exec (err, user) ->
 			if err or user == null
 				return error res, if err then err else "User not found"
-			res.json user			
+			res.json user
+			
+	@update: (req, res) ->
+		id = req.param('id')
+		model.User.findOne {_id: id}, (err, user) ->
+			if err or user == null
+				return error res, if err then err else "User not found"
+
+			if !! req.body.tags
+				user.tags = req.body.tags
+			user.updatedBy = req.user
+			user.save (err) ->
+				if err
+					return error res, err
+				res.json user					
 					
 module.exports = 
 	User: 		User

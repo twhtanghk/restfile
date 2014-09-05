@@ -134,39 +134,12 @@ class RightMenu extends NavMenu
 		jso_wipe()
 		return true
 			
-class NavBar extends Marionette.Layout
-	tagName:	'nav'
+class FileMenu extends Marionette.ItemView			
+
+	template: (data) =>
+		@btns.render().el
 	
-	className:	'navbar navbar-default'
-	
-	regions:
-		dir:	'#dir'
-		menu:	'#menu'
-		search:	'#search'
-		user:	'#user'
-		
-	template: (data) ->
-		"""
-			<div class="container-fluid">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a id='home' class="navbar-brand" href="#">File</a>
-				</div>
-				
-				<div id='menu' class="collapse navbar-collapse">
-					<div id='dir' />
-					<div id='user' />
-					<div id='search' />
-				</div>
-			</div>
-		"""	
-	
-	events:
+	events:		
 		'click #home':						'home'
 		'click #newfile':					'newfile'
 		'click #newdir':					'newdir'
@@ -180,14 +153,12 @@ class NavBar extends Marionette.Layout
 		'click #icon':						'icon'
 		'click #list':						'list'
 		'click #trash':						'trash'
-		'click #UserTagView':				'UserTagView'
-		'click #addUserTags':				'addUserTags'
 		
 	constructor: (opts) ->
 		home = new Backbone.Model
 			id:				'home'
 			prependIcon:	'home'
-			title:			'home'
+			title:			'home'	
 		newfile = new Backbone.Model
 			id:				'newfile'
 			prependIcon:	'plus'
@@ -242,30 +213,11 @@ class NavBar extends Marionette.Layout
 			id:				'trash'
 			prependIcon: 	'trash'
 			title: 			'delete'
-		UserTagView = new Backbone.Model
-			id:				'UserTagView'
-			appendIcon:		'user'
-			title: 			'change User View'			
-		addUserTags = new Backbone.Model
-			id:				'addUserTags'
-			prependIcon:	'plus'
-			appendIcon:		'pushpin'
-			title: 			'create user tag'
-					
-		btns = [home, newfile, newdir, addTags, removeTags, edit, upload, download, selectAll, deselectAll, icon, list, trash, UserTagView, addUserTags]
-		@btns = new lib.BtnGrp	className: 'navbar-btn', collection: new Backbone.Collection btns   
+			
+		btns = [home, newfile, newdir, addTags, removeTags, edit, upload, download, selectAll, deselectAll, icon, list, trash]
+		@btns = new lib.BtnGrp	className: 'navbar-btn', collection: new Backbone.Collection btns
 		
-		@views =
-			dir:	new DirInput(collection: opts.collection)
-			search:	new SearchInput(collection: opts.collection)
-			user:	new RightMenu(collection: opts.collection)
 		super(opts)
-		
-	onRender: ->
-		@dir.show @views.dir
-		@search.show @views.search
-		@user.show @views.user
-		@$('div.collapse').append @btns.render().el
 		
 	home: (event) ->
 		event.preventDefault()
@@ -461,18 +413,55 @@ class NavBar extends Marionette.Layout
 						vent.trigger 'hide:modal'
 						collection.refresh()
 					Promise.all(io).then(done, done)						
-		vent.trigger 'show:modal', {header: 'Delete File', body: form.render().el}
+		vent.trigger 'show:modal', {header: 'Delete File', body: form.render().el}	 			
 
+class UserMenu extends Marionette.ItemView
+
+	template: (data) =>
+		@btns.render().el
+		
+	events:				
+		'click #UserTagView':				'UserTagView'
+		'click #addUserTags':				'addUserTags'
+		
+	constructor: (opts = {}) ->			
+		UserTagView = new Backbone.Model
+			id:				'UserTagView'
+			appendIcon:		'user'
+			title: 			'change User View'			
+		addUserTags = new Backbone.Model
+			id:				'addUserTags'
+			prependIcon:	'plus'
+			appendIcon:		'pushpin'
+			title: 			'create user tag'
+		editUserTags = new Backbone.Model
+			id:				'editUserTags'
+			prependIcon:	'edit'
+			appendIcon:		'pushpin'
+			title: 			'edit user tag'	
+		removeUserTags = new Backbone.Model
+			id:				'removeUserTags'
+			prependIcon:	'minus'
+			appendIcon:		'pushpin'
+			title: 			'remove user tag'	
+					
+		btns = [UserTagView, addUserTags, editUserTags, removeUserTags]
+		@btns = new lib.BtnGrp	className: 'navbar-btn', collection: new Backbone.Collection btns 
+		
+		super(opts)
+		
 	UserTagView: (event) ->
 		event.preventDefault()
 		vent.trigger 'list:user'
 		
 	addUserTags: (event) ->
 		event.preventDefault()
-
+		if @collection.selected().length == 0
+			return
+		collection = @collection
 		form = new Backbone.Form
 			schema:
-				tags:	{ type:	'Text', editorAttrs: {placeholder: 'P21, admin, ..., for IT security team'} }
+				tags:	{ type:	'Text', editorAttrs: {placeholder: 'security relevant, restricted, ..., for IT security team'} }
 			template:	_.template """
 				<form id='tags' class="form-horizontal">
 					 <div data-fieldsets>
@@ -487,11 +476,106 @@ class NavBar extends Marionette.Layout
 			events:
 				submit: (event) ->
 					event.preventDefault()
-					alert "addusertags"
 					newtags = form.getEditor('tags').getValue().split(',')
 					newtags = _.map newtags, (tag) ->
 						tag.trim()
+					done = ->
+						vent.trigger 'hide:modal'
+						collection.refresh()
+					io = _.map collection.selected(), (user, index) ->
+						_.map newtags, (tag) ->
+							user.addTag(tag)
+						user.save()
+					Promise.all(io).then(done, done)
 		vent.trigger 'show:modal', {header: 'Tag User', body: form.render().el}
+		
+	removeUserTags: (event) ->
+		event.preventDefault()
+		if @collection.selected().length == 0
+			return
+		collection = @collection
+		form = new Backbone.Form
+			schema:
+				tags:	{ type:	'Text', editorAttrs: {placeholder: 'security relevant, restricted, ..., for IT security team'} }
+			template:	_.template """
+				<form id='tags' class="form-horizontal">
+					 <div data-fieldsets>
+					 </div>
+					 <button type='submit' class='btn btn-default'>
+					 	<span class="glyphicon glyphicon-floppy-disk"></span>
+					 	Remove Tag
+					 </button>
+					 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				</form>
+			"""
+			events:
+				submit: (event) ->
+					event.preventDefault()
+					newtags = form.getEditor('tags').getValue().split(',')
+					newtags = _.map newtags, (tag) ->
+						tag.trim()
+					done = ->
+						vent.trigger 'hide:modal'
+						collection.refresh()
+					io = _.map collection.selected(), (file, index) ->
+						_.map newtags, (tag) ->
+							file.removeTag(tag)
+						file.save()
+					Promise.all(io).then(done, done)
+		vent.trigger 'show:modal', {header: 'Tag File', body: form.render().el}		
+			
+class NavBar extends Marionette.Layout
+	tagName:	'nav'
+	
+	className:	'navbar navbar-default'
+	
+	regions:
+		dir:	'#dir'
+		fileMenu:	'#fileMenu'
+		userMenu: 	'#userMenu'
+		search:	'#search'
+		user:	'#user'
+		
+	template: (data) ->
+		"""
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a id='home' class="navbar-brand" href="#">File</a>
+				</div>
+				
+				<div class="collapse navbar-collapse">
+					<div id='dir' />					
+					<div id='fileMenu' />
+					<div id='userMenu' />
+					<div id='search' />
+					<div id='user' />
+					
+				</div>
+			</div>
+		"""	
+	
+	constructor: (opts = {}) ->	
+		@views =
+			dir:	new DirInput(collection: opts.collection)
+			fileMenu: new FileMenu(collection: opts.collection)
+			userMenu: new UserMenu(collection: opts.users)
+			search:	new SearchInput(collection: opts.collection)
+			user:	new RightMenu(collection: opts.collection)
+		super(opts)
+		
+	onRender: ->
+		@dir.show @views.dir
+		@fileMenu.show @views.fileMenu
+		@userMenu.show @views.userMenu
+		@search.show @views.search
+		@user.show @views.user		
+		
 		
 class FileView extends Marionette.ItemView
 	tagName:	'tr'
@@ -633,7 +717,7 @@ class FileSearchView extends Marionette.Layout
 		super(opts)
 		@users = new scope.model.Users()
 		@views = 
-			navbar: new NavBar(collection: @collection)
+			navbar: new NavBar({users: @users, collection: @collection})
 			file:	new FileListView(collection: @collection)
 			alluser:	new userController.UserSearchView(collection: @users)
 			
