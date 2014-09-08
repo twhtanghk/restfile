@@ -434,20 +434,20 @@ class UserMenu extends Marionette.ItemView
 		addUserTags = new Backbone.Model
 			id:				'addUserTags'
 			prependIcon:	'plus'
-			appendIcon:		'pushpin'
+			appendIcon:		'tags'
 			title: 			'create user tag'
-		editUserTags = new Backbone.Model
-			id:				'editUserTags'
-			prependIcon:	'edit'
-			appendIcon:		'pushpin'
-			title: 			'edit user tag'	
 		removeUserTags = new Backbone.Model
 			id:				'removeUserTags'
 			prependIcon:	'minus'
-			appendIcon:		'pushpin'
-			title: 			'remove user tag'	
+			appendIcon:		'tags'
+			title: 			'remove user tag'
+		editUserTags = new Backbone.Model
+			id:				'editUserTags'
+			prependIcon:	'edit'
+			appendIcon:		'tags'
+			title: 			'edit user tag'	
 					
-		btns = [UserTagView, addUserTags, editUserTags, removeUserTags]
+		btns = [UserTagView, addUserTags, removeUserTags, editUserTags]
 		@btns = new lib.BtnGrp	className: 'navbar-btn', collection: new Backbone.Collection btns 
 		
 		super(opts)
@@ -591,11 +591,10 @@ class NavBar extends Marionette.Layout
 				
 				<div class="collapse navbar-collapse">
 					<div id='dir' />					
-					<div id='fileMenu' />
-					<div id='userMenu' />
 					<div id='search' />
 					<div id='user' />
-					
+					<div id='fileMenu' class="btn navbar-left"/>
+					<div id='userMenu' class="btn navbar-left"/>					
 				</div>
 			</div>
 		"""	
