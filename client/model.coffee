@@ -100,7 +100,10 @@ class Users extends PageableCollection
 	
 	selected: ->
 		@where selected: true
-			
+
+	refresh: ->
+		@getFirstPage(reset: true)
+					
 class AllUsers extends Backbone.Collection
 	url:		"#{env.path}/api/user/all"
 	
