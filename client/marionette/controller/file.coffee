@@ -423,6 +423,8 @@ class UserMenu extends Marionette.ItemView
 	events:				
 		'click #UserTagView':				'UserTagView'
 		'click #addUserTags':				'addUserTags'
+		'click #editUserTags':				'editUserTags'
+		'click #removeUserTags':			'removeUserTags'
 		
 	constructor: (opts = {}) ->			
 		UserTagView = new Backbone.Model
@@ -489,6 +491,44 @@ class UserMenu extends Marionette.ItemView
 					Promise.all(io).then(done, done)
 		vent.trigger 'show:modal', {header: 'Tag User', body: form.render().el}
 		
+	editUserTags: (event) ->
+		event.preventDefault()
+		if @collection.selected().length == 0
+			return
+		collection = @collection
+		schema = {}
+		data = {}
+		_.each @collection.selected(), (user) ->
+			schema["tags"] = {type: 'Text', title: "#{user} tags"}
+			data["tags"] = user.get('tags').join(', ')
+		form = new Backbone.Form 
+			schema: 	schema
+			data: 		data
+			template: 	_.template """
+				<form id='edit' class="form-horizontal">
+					 <div data-fieldsets>
+					 </div>
+					 <button type='submit' class='btn btn-default'>
+					 	<span class="glyphicon glyphicon-floppy-disk"></span>
+					 	Edit Tag
+					 </button>
+					 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				</form>
+			"""
+			events:
+				submit: (event) ->
+					event.preventDefault()
+					done = ->
+						vent.trigger 'hide:modal'
+						collection.refresh()
+					io = _.map collection.selected(), (user, index) ->
+						newtags = form.getEditor("tags").getValue()
+						user.set 'tags', _.map newtags.split(','), (tag) ->
+							tag.trim()
+						user.save()
+					Promise.all(io).then(done, done)
+		vent.trigger 'show:modal', {header: 'Tag User', body: form.render().el}	
+		
 	removeUserTags: (event) ->
 		event.preventDefault()
 		if @collection.selected().length == 0
@@ -517,12 +557,12 @@ class UserMenu extends Marionette.ItemView
 					done = ->
 						vent.trigger 'hide:modal'
 						collection.refresh()
-					io = _.map collection.selected(), (file, index) ->
+					io = _.map collection.selected(), (user, index) ->
 						_.map newtags, (tag) ->
-							file.removeTag(tag)
-						file.save()
+							user.removeTag(tag)
+						user.save()
 					Promise.all(io).then(done, done)
-		vent.trigger 'show:modal', {header: 'Tag File', body: form.render().el}		
+		vent.trigger 'show:modal', {header: 'Tag User', body: form.render().el}		
 			
 class NavBar extends Marionette.Layout
 	tagName:	'nav'
