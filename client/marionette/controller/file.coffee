@@ -423,6 +423,8 @@ class UserMenu extends Marionette.ItemView
 	events:				
 		'click #UserTagView':				'UserTagView'
 		'click #addUserTags':				'addUserTags'
+		'click #editUserTags':				'editUserTags'
+		'click #removeUserTags':			'removeUserTags'
 		
 	constructor: (opts = {}) ->			
 		UserTagView = new Backbone.Model
@@ -432,20 +434,20 @@ class UserMenu extends Marionette.ItemView
 		addUserTags = new Backbone.Model
 			id:				'addUserTags'
 			prependIcon:	'plus'
-			appendIcon:		'pushpin'
+			appendIcon:		'tags'
 			title: 			'create user tag'
-		editUserTags = new Backbone.Model
-			id:				'editUserTags'
-			prependIcon:	'edit'
-			appendIcon:		'pushpin'
-			title: 			'edit user tag'	
 		removeUserTags = new Backbone.Model
 			id:				'removeUserTags'
 			prependIcon:	'minus'
-			appendIcon:		'pushpin'
-			title: 			'remove user tag'	
+			appendIcon:		'tags'
+			title: 			'remove user tag'
+		editUserTags = new Backbone.Model
+			id:				'editUserTags'
+			prependIcon:	'edit'
+			appendIcon:		'tags'
+			title: 			'edit user tag'	
 					
-		btns = [UserTagView, addUserTags, editUserTags, removeUserTags]
+		btns = [UserTagView, addUserTags, removeUserTags, editUserTags]
 		@btns = new lib.BtnGrp	className: 'navbar-btn', collection: new Backbone.Collection btns 
 		
 		super(opts)
@@ -481,15 +483,51 @@ class UserMenu extends Marionette.ItemView
 						tag.trim()
 					done = ->
 						vent.trigger 'hide:modal'
-
 						collection.refresh()
-
 					io = _.map collection.selected(), (user, index) ->
 						_.map newtags, (tag) ->
 							user.addTag(tag)
 						user.save()
 					Promise.all(io).then(done, done)
 		vent.trigger 'show:modal', {header: 'Tag User', body: form.render().el}
+		
+	editUserTags: (event) ->
+		event.preventDefault()
+		if @collection.selected().length == 0
+			return
+		collection = @collection
+		schema = {}
+		data = {}
+		_.each @collection.selected(), (user) ->
+			schema["tags"] = {type: 'Text', title: "#{user} tags"}
+			data["tags"] = user.get('tags').join(', ')
+		form = new Backbone.Form 
+			schema: 	schema
+			data: 		data
+			template: 	_.template """
+				<form id='edit' class="form-horizontal">
+					 <div data-fieldsets>
+					 </div>
+					 <button type='submit' class='btn btn-default'>
+					 	<span class="glyphicon glyphicon-floppy-disk"></span>
+					 	Edit Tag
+					 </button>
+					 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				</form>
+			"""
+			events:
+				submit: (event) ->
+					event.preventDefault()
+					done = ->
+						vent.trigger 'hide:modal'
+						collection.refresh()
+					io = _.map collection.selected(), (user, index) ->
+						newtags = form.getEditor("tags").getValue()
+						user.set 'tags', _.map newtags.split(','), (tag) ->
+							tag.trim()
+						user.save()
+					Promise.all(io).then(done, done)
+		vent.trigger 'show:modal', {header: 'Tag User', body: form.render().el}	
 		
 	removeUserTags: (event) ->
 		event.preventDefault()
@@ -519,12 +557,12 @@ class UserMenu extends Marionette.ItemView
 					done = ->
 						vent.trigger 'hide:modal'
 						collection.refresh()
-					io = _.map collection.selected(), (file, index) ->
+					io = _.map collection.selected(), (user, index) ->
 						_.map newtags, (tag) ->
-							file.removeTag(tag)
-						file.save()
+							user.removeTag(tag)
+						user.save()
 					Promise.all(io).then(done, done)
-		vent.trigger 'show:modal', {header: 'Tag File', body: form.render().el}		
+		vent.trigger 'show:modal', {header: 'Tag User', body: form.render().el}		
 			
 class NavBar extends Marionette.Layout
 	tagName:	'nav'
@@ -553,11 +591,10 @@ class NavBar extends Marionette.Layout
 				
 				<div class="collapse navbar-collapse">
 					<div id='dir' />					
-					<div id='fileMenu' />
-					<div id='userMenu' />
 					<div id='search' />
 					<div id='user' />
-					
+					<div id='fileMenu' class="btn navbar-left"/>
+					<div id='userMenu' class="btn navbar-left"/>					
 				</div>
 			</div>
 		"""	

@@ -175,7 +175,10 @@ class UserView extends Marionette.ItemView
 		@$el.toggleClass('selected', @model.get('selected'))
 	
 	collectionEvents:
-		'sync':		'render'	
+		'sync':		'render'
+		
+	modelEvents:
+		'change':				'render'		
 		
 class UserSearchView extends Marionette.CompositeView
 
@@ -184,9 +187,9 @@ class UserSearchView extends Marionette.CompositeView
 			<table>
 				<thead>
 					<tr>
-						<th class='name'>Name</th>
-						<th class='email'>Email</th>
-						<th class='tags'>Tags</th>
+						<th class='username'>Name</th>
+						<th class='useremail'>Email</th>
+						<th class='usertags'>Tags</th>
 					</tr>
 				</thead>
 			</table>
