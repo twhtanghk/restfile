@@ -3,7 +3,6 @@ path = require 'path'
 
 proj = 'file'
 authServer = 'mppsrc.ogcio.hksarg'
-
 env =
 	user:
 		url:	"https://#{authServer}/org/api/users/"

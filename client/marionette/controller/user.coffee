@@ -159,8 +159,8 @@ class UserView extends Marionette.ItemView
 	template: (data) =>
 		"""
 			<td><a>#{@model.toString()}</a></td>
-			<td><a>#{@model.get('Email')}</td>
-			<td></td>
+			<td>#{@model.get('email')}</td>
+			<td>#{@model.get('tags').join(', ')}</td>
 		"""
 			
 	events:
@@ -173,6 +173,9 @@ class UserView extends Marionette.ItemView
 	select: (event) ->
 		@model.toggleSelect()
 		@$el.toggleClass('selected', @model.get('selected'))
+	
+	collectionEvents:
+		'sync':		'render'	
 		
 class UserSearchView extends Marionette.CompositeView
 

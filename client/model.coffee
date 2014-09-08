@@ -76,7 +76,20 @@ class User extends Model
 		@set('selected', true)
 		
 	deselect: ->
-		@set('selected', false) 
+		@set('selected', false)
+		
+	hasTag: (tag) ->
+		_.contains(@get('tags'), tag)	 
+		
+	addTag: (tag) ->
+		if not @hasTag(tag)
+			@get('tags').push(tag)
+		return @
+	
+	removeTag: (tag) ->
+		if @hasTag(tag)
+			@set 'tags', _.difference @get('tags'), tag
+		return @
 		
 class Users extends PageableCollection
 	url:		"#{env.path}/api/user"
@@ -84,10 +97,9 @@ class Users extends PageableCollection
 	comparator:	'username'
 	
 	model:	User
+	
 	selected: ->
 		@where selected: true
-	schema:
-		models:	{type: 'List', itemType: 'NestedModel', model: User }
 			
 class AllUsers extends Backbone.Collection
 	url:		"#{env.path}/api/user/all"
