@@ -2,6 +2,7 @@
 
 root=~/prod/file
 
-cd ${root}
 export PORT=3000
-/usr/bin/npm start >>${root}/stdout.log 2>&1
+
+cd ${root}
+/usr/local/bin/forever start -a -l stdout.log /usr/bin/npm start

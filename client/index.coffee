@@ -3,4 +3,5 @@ require '../public/js/jso'
 require 'bootstrap/dist/js/bootstrap'
 
 app = require './app.coffee'
-new app.App()
+window.app = new app.App()
+window.app.start()

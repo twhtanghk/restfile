@@ -1,10 +1,22 @@
 @import "bootstrap";
+@import (inline) "select2.css";
 
-#content {
+.select2-container.form-control {
+	padding: 0;
+	 
+	.select2-choices {
+		border: none;
+		overflow: inherit;
+	}
+}
+ 
+.header {
 	nav {
 		margin-bottom: .2em;
 	}
-	
+}
+
+.content {
 	div.alert {
 		margin: .5em;
 	}
@@ -70,15 +82,27 @@
 			display: block;
 		}
 	}
+	
+	.authlist, .fieldset {
+		.row;
 		
-	.input-group {
-		width: 235px;
+		.field-userGrp, .field-fileGrp, .field-action, .field-button {
+			.make-xs-column(3)
+		}
+		
+		.field-action .select2-container {
+			width: 100%;
+		}
 	}
 }
 
-.input-group .glyphicon {
-	top: auto;
-	cursor: pointer;
+.input-group {
+	width: 235px;
+
+	.glyphicon {
+		top: auto;
+		cursor: pointer;
+	}
 }
 
 .btn-file {

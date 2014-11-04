@@ -4,6 +4,8 @@ require 'backbone-forms/distribution/backbone-forms'
 require '../public/js/backbone.bootstrap-modal'
 require 'backbone-forms/distribution/editors/list'
 require '../public/templates/bootstrap'
+require 'select2'
+require 'underscore'
 
 # list editor with default value
 class DList extends Backbone.Form.editors.List
@@ -20,6 +22,21 @@ class DList extends Backbone.Form.editors.List
 		
 Backbone.Form.editors.DList = DList
 
+class Select extends Backbone.Form.editors.Select 
+	attributes : {multiple : 'multiple'},
+		
+	render: ->
+		_.delay =>
+			@$el.select2(placeholder: @schema.title)
+		super()
+		
+	setValue : (values) ->
+		if not _.isArray(values)
+			values = [values];
+		@$el.val(values)
+		
+Backbone.Form.editors.Select = Select
+
 # select editor with object value
 class OSelect extends Backbone.Form.editors.Select
 	getValue: (value) ->
@@ -27,3 +44,17 @@ class OSelect extends Backbone.Form.editors.Select
 		@schema.options.findWhere _id: id
 		
 Backbone.Form.editors.OSelect = OSelect
+
+class FieldOnly extends Backbone.Form.Field
+	template: (data) ->
+		_.template """
+			<div class="form-group field-<%= key %>">
+				<div>
+					<span data-editor></span>
+					<p class="help-block" data-error></p>
+					<p class="help-block"><%= help %></p>
+				</div>
+			</div>
+		""", data
+	
+Backbone.Form.FieldOnly = FieldOnly

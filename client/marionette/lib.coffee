@@ -162,12 +162,11 @@ class Icon extends Marionette.ItemView
 	opts.model:	type, title, data-toggle, data-placement, appendIcon, prependIcon
 ###
 class Btn extends Marionette.ItemView
-	tagName:	'button'
+	tagName:	'a'
 	
 	className:	'btn btn-default'
 	
 	attributes:
-		type:				'button'
 		'data-toggle':		'tooltip'
 		'data-placement':	'bottom'
 		
@@ -178,7 +177,8 @@ class Btn extends Marionette.ItemView
 		_.extend @, _.pick(opts.model.attributes, 'id', 'template')
 		if opts.model.get('className')?
 			opts.className = "#{@className} #{opts.model.get('className')}"
-		_.extend @attributes, _.pick(opts.model.attributes, 'title', 'type', 'data-toggle', 'data-placement')
+		_.extend @attributes, _.pick(opts.model.attributes, 'title', 'type', 'data-toggle', 'data-placement', 'href')
+		_.defaults @attributes, href: '#'
 		super(opts)
 		
 	onRender: ->

@@ -15,36 +15,20 @@ mongoose.connect env.dbUrl, { db: { safe: true }}, (err) ->
 ###
 	perm = domain:action:obj
 ### 
-class Permission
-	constructor: (perm) ->
-		@perm = perm
+PermissionSchema = new mongoose.Schema
+	order:		{ type: Number }
+	userGrp:	{ type: String, required: true }
+	fileGrp:	{ type: String, required: true }
+	action:		[ { type: String } ]
+
+PermissionSchema.statics =
+	ordering_fields: ->
+		order: 1, userGrp: 1, fileGrp: 1
 		
-	domain: ->
-		ret = @perm.split(':')[0]
-		if ret == '*'
-			ret = '.*'
-		return ret			
-	
-	action: ->
-		ret = @perm.split(':')[1]
-		if ret == '*'
-			ret = '.*'
-		return ret
-		
-	obj: ->
-		ret = @perm.split(':')[2]
-		if ret == '*'
-			ret = '.*'
-		return ret
-		
-	implies: (p) ->
-		if typeof p == 'string'
-			p = new Permission(p)
-		domain = new RegExp "^#{@domain()}$"
-		action = new RegExp "^#{@action()}$"
-		obj = new RegExp "^#{@obj()}$"
-		domain.test(p.domain()) and action.test(p.action()) and obj.test(p.obj())
-		
+PermissionSchema.plugin(findOrCreate)
+
+Permission = mongoose.model 'Permission', PermissionSchema
+			
 TagSchema = new mongoose.Schema
 	name:			{ type: String, required: true, index: {unique: true} }
 	permissions:	[ { type: String } ]

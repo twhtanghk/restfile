@@ -2,7 +2,7 @@ _ = require 'underscore'
 path = require 'path'
 
 proj = 'file'
-authServer = 'mob.myvnc.com'
+authServer = 'mppsrc.ogcio.hksarg'
 
 env =
 	user:
@@ -18,8 +18,6 @@ env =
 	file:
 		newfile:	'New File'
 		newdir:		'New Folder'
-	flash:
-		timeout:	5000		# ms	
 	icons:
 		"text/directory":			"dir.png"
 		"text/plain":				"txt.png"
@@ -28,6 +26,10 @@ env =
 		"application/octet-stream":	"dat.png"
 		"application/excel":		"xls.png"
 		"image/png":				"png.png"
+	flash:
+		timeout:	3000	# ms	
+	promise:
+		timeout:	300		# ms
 	
 _.each env.icons, (val, key) ->
 	env.icons[key] = path.join(env.path, 'img', val)

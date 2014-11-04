@@ -49,14 +49,35 @@ grunt.initConfig({
 		main : {
 			src : 'public/js/index.min.js',
 			dest : 'public/js/index.js'
+		},
+		select2: {
+			files: [ {
+				expand: true, 
+				src: [
+					'bower_components/select2/*.png',
+					'bower_components/select2/*.gif'
+				],
+				dest: 'public/css/', 
+				flatten: true,
+				filter: 'isFile'
+			} ]
+		},
+		form: {
+			src: 'node_modules/backbone-forms/distribution/templates/bootstrap3.js',
+			dest: 'public/templates/bootstrap.js',
+			faltten: true
 		}
 	},
 	less : {
 		compile : {
 			options : {
-				paths : [ 'bower_components/bootstrap/less' ],
+				paths : [ 
+					'bower_components/bootstrap/less',
+					'bower_components/select2'
+				],
 				strictimports: true,
-				syncImport: true
+				syncImport: true,
+				dumpLineNumbers: true
 			},
 			files : {
 				'public/css/main.css' : 'views/main.less'

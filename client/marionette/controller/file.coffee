@@ -12,6 +12,9 @@ File = scope.model.File
 vent = require '../../vent.coffee'
 path = require 'path'
 
+reject = (err) ->
+	vent.trigger 'show:msg', err, 'error'
+
 class DirInput extends Marionette.Layout
 	id:			'cwd'
 	
@@ -179,12 +182,14 @@ class NavBar extends Marionette.Layout
 		'click #icon':						'icon'
 		'click #list':						'list'
 		'click #trash':						'trash'
+		'click #share':						'share'
 		
 	constructor: (opts) ->
 		home = new Backbone.Model
 			id:				'home'
 			prependIcon:	'home'
 			title:			'home'
+			href:			'#file'
 		newfile = new Backbone.Model
 			id:				'newfile'
 			prependIcon:	'plus'
@@ -231,16 +236,23 @@ class NavBar extends Marionette.Layout
 			id:				'icon'
 			prependIcon: 	'th'
 			title: 			'icon'
+			href:			'#file/icon'
 		list = new Backbone.Model
 			id:				'list'
 			prependIcon: 	'th-list'
 			title: 			'list'
+			href:			'#file/list'
 		trash = new Backbone.Model
 			id:				'trash'
 			prependIcon: 	'trash'
 			title: 			'delete'
+		share = new Backbone.Model
+			id:				'share'
+			prependIcon:	'share'
+			title:			'share'
+			href:			'#file/auth'
 		
-		btns = [home, newfile, newdir, addTags, removeTags, edit, upload, download, selectAll, deselectAll, icon, list, trash]
+		btns = [home, newfile, newdir, addTags, removeTags, edit, upload, download, selectAll, deselectAll, icon, list, trash, share]
 		@btns = new lib.BtnGrp	className: 'navbar-btn', collection: new Backbone.Collection btns   
 		
 		@views =
@@ -254,11 +266,11 @@ class NavBar extends Marionette.Layout
 		@search.show @views.search
 		@user.show @views.user
 		@$('div.collapse').append @btns.render().el
+		@$el.append lib.ModalView.getInstance().$el
 		
 	home: (event) ->
-		event.preventDefault()
 		@collection.home()
-		
+		 
 	newfile: (event) ->
 		event.preventDefault()
 		$(event.target).parent().removeClass('open')
@@ -411,15 +423,7 @@ class NavBar extends Marionette.Layout
 	deselectAll: (event) ->
 		event.preventDefault()
 		@collection.deselectAll()
-			
-	icon: (event) ->
-		event.preventDefault()
-		vent.trigger 'icon:file' 
-		
-	list: (event) ->
-		event.preventDefault()
-		vent.trigger 'list:file'
-	
+
 	trash: (event) ->
 		event.preventDefault()
 		if @collection.selected().length == 0
@@ -566,46 +570,70 @@ class FileIconListView extends FileListView
 	onRender: ->
 		@$el.prepend @view.render().el
 		
-###
-model:		File instance of current directory
-collection:	Files instance for collection of files
-###	
-class FileSearchView extends Marionette.Layout
-	template: (data) =>
-		tmpl = """
-			<div id='content'>
-				<div id='navbar' />
-				<div id='file' />
+class AuthView extends Marionette.ItemView
+	template: (data) ->
+		"""
+			<div class='field-userGrp'>
+				#{data.userGrp}
 			</div>
-		""" 
-		
-	regions:
-		navbar:		'#navbar'
-		file:		'#file'
+			<div class='field-fileGrp'>
+				#{data.fileGrp}
+			</div>
+			<div class='field-action'>
+				#{data.action?.join(', ')}
+			</div>
+			<div class='field-button'>
+				<a class='btn btn-default delete' href='#'>Delete</a>
+			</div>
+		"""
 		
 	events:
-		'click .contextMenu .rename':		'rename'
-		'click .contextMenu .remove':		'remove'
+		'click .delete':	'delete'
 		
-	constructor: (opts) ->
+	'delete': (event) ->
+		event.preventDefault()
+		fulfill = ->
+			vent.trigger 'show:msg', 'deleted successfully'
+		@model.destroy().then fulfill, reject
+		
+class AuthListView extends Marionette.CompositeView
+	className:	'authlist'
+	
+	template: (data) =>
+		element = @form.render().el
+		$(element).append "<div class='list'></div>"
+		return element
+		
+	itemView:			AuthView
+	
+	itemViewContainer:	'.list'
+		
+	constructor: (opts = {}) ->
 		super(opts)
-		@views = 
-			navbar: new NavBar(collection: @collection)
-			file:	new FileListView(collection: @collection)
-		vent.on 'show:msg', (msg, type='other') =>
-			flash = new lib.FlashView {model: new Backbone.Model({type: type, msg: msg})}
-			flash.render().$el.insertAfter('nav')
-		vent.on 'icon:file', =>
-			@views.file = new FileIconListView(collection: @collection)
-			@file.show @views.file
-		vent.on 'list:file', =>
-			@views.file = new FileListView(collection: @collection)
-			@file.show @views.file
-			
-	onRender: ->
-		@navbar.show @views.navbar
-		@file.show @views.file
-		lib.ModalView.getInstance().$el.insertAfter('nav')
-
+		@form = new Backbone.Form
+			model: 		new scope.model.Permission({}, {collection: @collection})
+			Field: 		Backbone.Form.FieldOnly
+			template:	->
+				"""
+	    			<form class="form-inline" role="form">
+	    				<div data-fieldsets></div>
+	    			</form>
+  				"""
+		
+	events:
+		'submit':	'add'
+		
+	add: (event) ->
+		event.preventDefault()
+		model = new scope.model.Permission(@form.getValue(), collection: @collection)
+		fulfill = =>
+			@collection.add model
+			vent.trigger 'show:msg', 'saved successfully'
+		model.save().then fulfill, reject
+		
 module.exports =	
-	FileSearchView: FileSearchView
+	NavBar:				NavBar
+	FileListView: 		FileListView
+	FileIconListView:	FileIconListView
+	AuthView:			AuthView
+	AuthListView:		AuthListView

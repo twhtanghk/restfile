@@ -2,14 +2,15 @@ env = require '../../../env.coffee'
 path = require 'path'
 controller = require "../controller/file.coffee"
 passport = require 'passport'
-bearer = passport.authenticate('bearer', { session: false })
 lib = require '../lib.coffee'
 newHome = lib.newHome
 ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 ensurePermission = lib.ensurePermission
+middleware = require '../../../middleware.coffee'
  
 authURL = path.join(env.path, env.oauth2.authURL)
-	
+bearer = middleware.rest.user
+
 @include = ->
 
 	path = new RegExp("^/((?:[^/]+/)*[^/]*)$") 

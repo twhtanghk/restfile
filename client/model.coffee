@@ -1,7 +1,7 @@
 env = require './env.coffee'
 _ = require 'underscore'
 Backbone = require 'backbone'
-PageableCollection = require 'backbone-pageable'
+require 'backbone.paginator'
 Promise = require 'promise'
 path = require 'path'
 vent = require './vent.coffee'
@@ -98,13 +98,35 @@ class OGCIOUsers extends Users
 		p.then ->
 			return user
 		
+
 class Permission extends Model
 	schema:
-		domain:		{ type: 'Text' }
-		action:		{ type: 'Text' }
-	
+		userGrp:	{ type: 'Text', title: 'User tag' }
+		fileGrp:	{ type: 'Text', title: 'File tag' }
+		action:
+			type: 		'Select'
+			title:		'Access right'
+			options: 	[
+				{ label: 'read', val: 'read' }
+				{ label: 'write', val: 'write' }
+			]
+		button:
+			template: (data) ->
+				_.template """
+					<div class="form-group field-<%= key %>">
+						<button type='submit' class='btn btn-default'>Add</button>
+					</div>
+				""", data
+			
 	toString: ->
-		"#{@get('domain')}:#{@get('action')}"
+		"#{@get('userGrp')}:#{@get('fileGrp')}:#{@get('action')}"
+
+class Permissions extends PageableCollection
+	url:		"#{env.path}/api/permission"
+	
+	model:		Permission
+	
+	mode:		'infinite'
 
 class File extends Model
 	idAttribute:	'path'
@@ -248,9 +270,11 @@ class Dir extends Files
 		super(method, model, opts)
 		  
 module.exports =
-	User:		User
-	Users:		Users
-	OGCIOUsers:	OGCIOUsers
-	File:		File
-	Files:		Files
-	Dir:		Dir
+	Permission:		Permission
+	Permissions:	Permissions
+	User:			User
+	Users:			Users
+	OGCIOUsers:		OGCIOUsers
+	File:			File
+	Files:			Files
+	Dir:			Dir

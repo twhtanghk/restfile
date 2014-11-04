@@ -11,7 +11,12 @@ lib = require './marionette/lib.coffee'
 vent = require './vent.coffee'
 
 class App extends Marionette.Application
-	constructor: (options) ->
+	constructor: (opts = {}) ->
+		super(opts)
+		
+		@addRegions header: '.header'
+		@addRegions content: '.content'
+		
 		# configure to acquire bearer token for all api call from oauth2 server
 		jso_configure 
 			oauth2:

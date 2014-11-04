@@ -1,4 +1,10 @@
 Backbone = require 'backbone'
 Marionette = require 'backbone.marionette'
 
-module.exports = new Backbone.Wreqr.EventAggregator()
+vent = new Backbone.Wreqr.EventAggregator()
+
+vent.on 'show:msg', (msg, type='info') =>
+	require 'bootstrap.growl'
+	$.growl {message: msg, type: type}
+
+module.exports = vent
