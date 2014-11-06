@@ -13,7 +13,8 @@ env =
 		authUrl:		"https://#{authServer}/org/oauth2/authorize/"
 		scope:			[
 			"https://#{authServer}/org/users",
-			"https://#{authServer}/file"
+			"https://#{authServer}/file",
+			"https://#{authServer}/xmpp"
 		]
 	file:
 		newfile:	'New File'

@@ -96,28 +96,9 @@ class OGCIOUsers extends Users
 		user = new User()
 		p = user.fetch url: env.user.url + 'me/'
 		p.then ->
-			return user
-		
+			return user		
 
 class Permission extends Model
-	schema:
-		userGrp:	{ type: 'Text', title: 'User tag' }
-		fileGrp:	{ type: 'Text', title: 'File tag' }
-		action:
-			type: 		'Select'
-			title:		'Access right'
-			options: 	[
-				{ label: 'read', val: 'read' }
-				{ label: 'write', val: 'write' }
-			]
-		button:
-			template: (data) ->
-				_.template """
-					<div class="form-group field-<%= key %>">
-						<button type='submit' class='btn btn-default'>Add</button>
-					</div>
-				""", data
-			
 	toString: ->
 		"#{@get('userGrp')}:#{@get('fileGrp')}:#{@get('action')}"
 
@@ -268,7 +249,41 @@ class Dir extends Files
 		if method == 'read'
 			opts.url = "#{@url}#{@path}"
 		super(method, model, opts)
-		  
+
+class FileGrp extends Backbone.Model
+	idAttribute:	'tag'
+	
+	toString: ->
+		@get('tag')
+		
+class FileGrps extends Backbone.Collection
+	url:	"#{env.path}/api/tag"
+	
+	model:	FileGrp
+	
+class UserGrp extends Backbone.Model
+	idAttribute:	'tag'
+	
+	toString: ->
+		@get('tag')
+		
+im = require 'restim/client/model.coffee'
+
+class UserGrps extends Backbone.Collection
+	model:	UserGrp
+	
+	roster: new im.Roster()
+	
+	fetch: (opts = {}) ->
+		return new Promise (fulfill, reject) =>
+			success = =>
+				keys = _.keys @roster.groups()
+				keys = _.map keys, (tag) ->
+					tag: tag
+				@set keys, opts
+				fulfill(arguments)
+			@roster.fetch(opts).then success, reject
+		
 module.exports =
 	Permission:		Permission
 	Permissions:	Permissions
@@ -278,3 +293,5 @@ module.exports =
 	File:			File
 	Files:			Files
 	Dir:			Dir
+	FileGrps:		FileGrps
+	UserGrps:		UserGrps

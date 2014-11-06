@@ -66,7 +66,7 @@ rest =
 		auth = passport.authenticate('bearer', { session: false })
 		auth(req, res, next)
 		
-	handler: (user, response) ->
+	handler: (response) ->
 		reject: (err) ->
 			response.json 501, err
 		fulfill: (res) ->

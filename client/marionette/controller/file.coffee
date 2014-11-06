@@ -571,6 +571,8 @@ class FileIconListView extends FileListView
 		@$el.prepend @view.render().el
 		
 class AuthView extends Marionette.ItemView
+	className:	'authlist'
+	
 	template: (data) ->
 		"""
 			<div class='field-userGrp'>
@@ -596,22 +598,31 @@ class AuthView extends Marionette.ItemView
 			vent.trigger 'show:msg', 'deleted successfully'
 		@model.destroy().then fulfill, reject
 		
-class AuthListView extends Marionette.CompositeView
+class AuthCreateView extends Marionette.ItemView
 	className:	'authlist'
 	
 	template: (data) =>
-		element = @form.render().el
-		$(element).append "<div class='list'></div>"
-		return element
-		
-	itemView:			AuthView
-	
-	itemViewContainer:	'.list'
-		
-	constructor: (opts = {}) ->
-		super(opts)
 		@form = new Backbone.Form
-			model: 		new scope.model.Permission({}, {collection: @collection})
+			schema:
+				userGrp:	
+					type: 		'Select'
+					options:	@userGrp
+				fileGrp:	
+					type: 		'Select'
+					options:	@fileGrp
+				action:
+					type: 		'MSelect'
+					options: 	[
+						{ label: 'read', val: 'read' }
+						{ label: 'write', val: 'write' }
+					]
+				button:
+					template: (data) ->
+						_.template """
+							<div class="form-group field-<%= key %>">
+								<button type='submit' class='btn btn-default'>Add</button>
+							</div>
+						""", data
 			Field: 		Backbone.Form.FieldOnly
 			template:	->
 				"""
@@ -619,10 +630,19 @@ class AuthListView extends Marionette.CompositeView
 	    				<div data-fieldsets></div>
 	    			</form>
   				"""
-		
+		@form.render().el
+  		
 	events:
 		'submit':	'add'
 		
+	constructor: (opts = {}) ->
+		super(opts)
+		fulfill = =>
+			@render()
+		@userGrp = new scope.model.UserGrps()
+		@fileGrp = new scope.model.FileGrps()
+		Promise.all([@userGrp.fetch(reset: true), @fileGrp.fetch(reset: true)]).then fulfill, reject
+	
 	add: (event) ->
 		event.preventDefault()
 		model = new scope.model.Permission(@form.getValue(), collection: @collection)
@@ -630,7 +650,22 @@ class AuthListView extends Marionette.CompositeView
 			@collection.add model
 			vent.trigger 'show:msg', 'saved successfully'
 		model.save().then fulfill, reject
+	
+class AuthListView extends Marionette.Layout
+	template: (data) ->
+		"""
+			<div class='create'></div>
+			<div class='list'></div>
+		"""
+	
+	regions:
+		create:		'.create'
+		list:		'.list'		
 		
+	onRender: ->
+		@create.show new AuthCreateView collection: @collection
+		@list.show new Marionette.CollectionView itemView: AuthView, collection: @collection
+	
 module.exports =	
 	NavBar:				NavBar
 	FileListView: 		FileListView

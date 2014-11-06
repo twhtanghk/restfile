@@ -4,6 +4,7 @@ mongoose = require 'mongoose'
 model = require '../../../model.coffee'
 _ = require 'underscore'
 fs = require 'fs'
+Promise = require '../../../promise.coffee'
 
 error = (res, msg) ->
 	res.json 501, error: msg.err
@@ -106,6 +107,17 @@ class File
 				if err
 					return error res, err
 				res.json {deleted: true}
-					
+			
+	@tag: (user) ->
+		return new Promise (fulfill, reject) ->
+			success = (files) ->
+				tags = []
+				_.each files, (file) ->
+					tags = _.union tags, file.tags
+				tags = _.map tags, (tag) ->
+					tag: tag
+				fulfill tags
+			model.File.find(createdBy: user).select('tags').exec().then success, reject 
+				
 module.exports = 
 	File: 		File

@@ -23,11 +23,19 @@ class DList extends Backbone.Form.editors.List
 Backbone.Form.editors.DList = DList
 
 class Select extends Backbone.Form.editors.Select 
-	attributes : {multiple : 'multiple'},
-		
 	render: ->
 		_.delay =>
 			@$el.select2(placeholder: @schema.title)
+		super()
+		
+Backbone.Form.editors.Select = Select
+
+class MSelect extends Backbone.Form.editors.Select 
+	attributes : {multiple : 'multiple'}
+		
+	render: ->
+		_.delay =>
+			@$el.select2(if @schema.title then placeholder: @schema.title else {})
 		super()
 		
 	setValue : (values) ->
@@ -35,7 +43,7 @@ class Select extends Backbone.Form.editors.Select
 			values = [values];
 		@$el.val(values)
 		
-Backbone.Form.editors.Select = Select
+Backbone.Form.editors.MSelect = MSelect
 
 # select editor with object value
 class OSelect extends Backbone.Form.editors.Select

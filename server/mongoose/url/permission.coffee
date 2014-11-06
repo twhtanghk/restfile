@@ -20,15 +20,14 @@ order = (params) ->
 @include = ->
 
 	@get '/api/permission', middleware.rest.user, ->
-		handler = middleware.rest.handler(@request.user, @response)
+		handler = middleware.rest.handler(@response)
 		controller.Permission.list(filter(@request.query), pagination(@request.query), order(@request.query)).then handler.fulfill, handler.reject
 		
 	@post '/api/permission', middleware.rest.user, ->
-		handler = middleware.rest.handler(@request.user, @response)
+		handler = middleware.rest.handler(@response)
 		controller.Permission.create(@request.user, @request.body).then handler.fulfill, handler.reject
 		
 	@del '/api/permission/:id', middleware.rest.user, ->
-		handler = middleware.rest.handler(@request.user, @response)
+		handler = middleware.rest.handler(@response)
 		id = @request.params.id
 		controller.Permission.delete(@request.user, id).then handler.fulfill, handler.reject
-	
