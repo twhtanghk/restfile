@@ -98,7 +98,7 @@ file:		create: req.body.path or other: req.params[0]
 ensurePermission = (p) ->
 	(req, res, next) ->
 		user = req.user
-		name = req.params[0]
+		name = req.params[0] || req.body.path
 		if not fs.existsSync model.FileUtil.abspath name
 			path = require 'path'
 			name = path.dirname name
