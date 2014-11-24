@@ -1,5 +1,5 @@
 env = require '../../env.coffee'
-Promise = require 'promise'
+Promise = require '../../../promise.coffee'
 _ = require 'underscore'
 Backbone = require 'backbone'
 Marionette = require 'backbone.marionette'
@@ -11,9 +11,6 @@ scope =
 File = scope.model.File
 vent = require '../../vent.coffee'
 path = require 'path'
-
-reject = (err) ->
-	vent.trigger 'show:msg', err, 'error'
 
 class DirInput extends Marionette.Layout
 	id:			'cwd'
@@ -82,7 +79,7 @@ class SearchInput extends Marionette.Layout
 		
 	search: (event) ->
 		event.preventDefault()
-		@collection.search @$('input#search').val()
+		@collection.search(@$('input#search').val()).then false, vent.error
 				
 class NavMenu extends Marionette.Layout
 	id:			'menu'
@@ -169,20 +166,20 @@ class NavBar extends Marionette.Layout
 		"""	
 	
 	events:
-		'click #home':						'home'
-		'click #newfile':					'newfile'
-		'click #newdir':					'newdir'
-		'click #edit':						'edit'
-		'click #addTags':					'addTags'
-		'click #removeTags':				'removeTags'
+		'click a#home':						'home'
+		'click a#newfile':					'newfile'
+		'click a#newdir':					'newdir'
+		'click a#edit':						'edit'
+		'click a#addTags':					'addTags'
+		'click a#removeTags':				'removeTags'
 		'change input.file-upload':			'upload'
-		'click #download':					'download'
-		'click #selectAll':					'selectAll'
-		'click #deselectAll':				'deselectAll'
-		'click #icon':						'icon'
-		'click #list':						'list'
-		'click #trash':						'trash'
-		'click #share':						'share'
+		'click a#download':					'download'
+		'click a#selectAll':					'selectAll'
+		'click a#deselectAll':				'deselectAll'
+		'click a#icon':						'icon'
+		'click a#list':						'list'
+		'click a#trash':						'trash'
+		'click a#share':						'share'
 		
 	constructor: (opts) ->
 		home = new Backbone.Model
@@ -596,7 +593,7 @@ class AuthView extends Marionette.ItemView
 		event.preventDefault()
 		fulfill = ->
 			vent.trigger 'show:msg', 'deleted successfully'
-		@model.destroy().then fulfill, reject
+		@model.destroy().then fulfill, vent.error
 		
 class AuthCreateView extends Marionette.ItemView
 	className:	'authlist'
@@ -641,7 +638,7 @@ class AuthCreateView extends Marionette.ItemView
 			@render()
 		@userGrp = new scope.model.UserGrps()
 		@fileGrp = new scope.model.FileGrps()
-		Promise.all([@userGrp.fetch(reset: true), @fileGrp.fetch(reset: true)]).then fulfill, reject
+		Promise.all([@userGrp.fetch(reset: true), @fileGrp.fetch(reset: true)]).then fulfill, vent.error
 	
 	add: (event) ->
 		event.preventDefault()
@@ -649,7 +646,7 @@ class AuthCreateView extends Marionette.ItemView
 		fulfill = =>
 			@collection.add model
 			vent.trigger 'show:msg', 'saved successfully'
-		model.save().then fulfill, reject
+		model.save().then fulfill, vent.error
 	
 class AuthListView extends Marionette.Layout
 	template: (data) ->

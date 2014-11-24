@@ -31,6 +31,8 @@ env =
 		]
 	pageSize:	10
 	log4js: 	require 'log4js'
+	xmpp:
+		url:	'https://mppsrc.ogcio.hksarg/im/api/roster/<%= obj.owner %>'
 	
 env.log4js.configure
 	appenders:	[ type: 'console' ]

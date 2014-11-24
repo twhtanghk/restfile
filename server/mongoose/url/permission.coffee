@@ -2,9 +2,11 @@ env = require '../../../env.coffee'
 controller = require "../controller/permission.coffee"
 middleware = require '../../../middleware.coffee'
 model = require '../../../model.coffee'
+_ = require 'underscore'
 
-filter = (params) ->
-	params.search || {}
+filter = (user, params) ->
+	ret = createdBy: user
+	return if _.isEmpty params.search then ret else $and: [ret, params.search]
 			
 pagination = (params) ->
 	page = if params.page then params.page else 1
@@ -21,7 +23,7 @@ order = (params) ->
 
 	@get '/api/permission', middleware.rest.user, ->
 		handler = middleware.rest.handler(@response)
-		controller.Permission.list(filter(@request.query), pagination(@request.query), order(@request.query)).then handler.fulfill, handler.reject
+		controller.Permission.list(filter(@request.user, @request.query), pagination(@request.query), order(@request.query)).then handler.fulfill, handler.reject
 		
 	@post '/api/permission', middleware.rest.user, ->
 		handler = middleware.rest.handler(@response)

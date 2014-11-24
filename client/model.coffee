@@ -2,7 +2,7 @@ env = require './env.coffee'
 _ = require 'underscore'
 Backbone = require 'backbone'
 require 'backbone.paginator'
-Promise = require 'promise'
+Promise = require '../promise.coffee'
 path = require 'path'
 vent = require './vent.coffee'
 
@@ -283,7 +283,7 @@ class UserGrps extends Backbone.Collection
 				@set keys, opts
 				fulfill(arguments)
 			@roster.fetch(opts).then success, reject
-		
+
 module.exports =
 	Permission:		Permission
 	Permissions:	Permissions

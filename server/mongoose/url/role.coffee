@@ -1,22 +1,20 @@
 controller = require "../controller/role.coffee"
 passport = require 'passport'
 bearer = passport.authenticate('bearer', { session: false })
-lib = require '../lib.coffee'
-ensurePermission = lib.ensurePermission
  
 @include = ->
 
-	@get '/api/role', bearer, ensurePermission('role:list'), ->
+	@get '/api/role', bearer, ->
 		controller.Role.list(@request, @response)
 		
-	@post '/api/role', bearer, ensurePermission('role:create'), ->
+	@post '/api/role', bearer, ->
 		controller.Role.create(@request, @response) 
 		
-	@get '/api/role/:id', bearer, ensurePermission('role:read'), ->
+	@get '/api/role/:id', bearer, ->
 		controller.Role.read(@request, @response)
 		
-	@put '/api/role/:id', bearer, ensurePermission('role:update'), ->
+	@put '/api/role/:id', bearer, ->
 		controller.Role.update(@request, @response)
 		
-	@del '/api/role/:id', bearer, ensurePermission('role:delete'), ->
+	@del '/api/role/:id', bearer, ->
 		controller.Role.delete(@request, @response)

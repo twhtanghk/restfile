@@ -7,4 +7,7 @@ vent.on 'show:msg', (msg, type='info') =>
 	require 'bootstrap.growl'
 	$.growl {message: msg, type: type}
 
+vent.error = (msg) ->
+	$.growl {message: msg, type: 'error'}
+
 module.exports = vent

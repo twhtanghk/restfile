@@ -71,6 +71,58 @@ rest =
 			response.json 501, err
 		fulfill: (res) ->
 			response.json res
+			
+# check if current login user and each of the input groups (:group) is element of (:owner).roster.(user).groups
+isElement = (owner, userGrps, user) ->
+	return new Promise (fulfill, reject) ->
+		url = _.template env.xmpp.url, owner: owner
+		opts = 
+			timeout:	envClient.promise.timeout
+			ca:			ca
+			headers:
+				Authorization:	"Bearer #{user.token}"
+		data = _.map userGrps, (group) ->
+			"groups=#{group}"
+		http = require 'needle'
+		http.get "#{url}?#{data.join('&')}", opts, (err, res) ->
+			if err
+				reject err
+			else
+				fulfill res.body 
+
+###
+user: 		req.user
+p:			domain:action
+file:		create: req.body.path or other: req.params[0]	
+###
+ensurePermission = (p) ->
+	(req, res, next) ->
+		user = req.user
+		name = req.params[0]
+		if not fs.existsSync model.FileUtil.abspath name
+			path = require 'path'
+			name = path.dirname name
+			
+		reject = (err) ->
+			res.json 401, err
+		
+		fulfill = (file) ->
+			if file.createdBy.id == user.id
+				return next()
+			success = (perms) ->
+				if perms.length == 0
+					return reject("no permission defined")
+				userGrps = _.map perms, (perm) ->
+					perm.userGrp
+				isElement(file.createdBy.username, userGrps, user).then (result) ->
+					if _.some(_.values(result))
+						next()
+					else
+						reject(result)		
+			model.Permission.find(fileGrp: {$in: file.tags}, action: p, createdBy: file.createdBy).exec().then success, reject
+			
+		model.File.findOne({path: {$in: [name, "#{name}/"]}}).populate('createdBy').exec().then fulfill, reject 
 		
 module.exports = 
-	rest:	rest
+	rest:				rest
+	ensurePermission:	ensurePermission

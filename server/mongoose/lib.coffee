@@ -25,37 +25,9 @@ newHome = ->
 			if err
 				res.json 501, error: err
 			else next()
-		
-###
-user: 		req.user
-p:			domain:action
-file:		create: req.body.path or other: req.params[0]	
-###
-ensurePermission = (p) ->
-	(req, res, next) ->
-		user = req.user
-		home = new RegExp "^#{user.username}"
-		filepath = req.params[0]
-		
-		# if file/dir creation, check parent folder ownership and permission
-		if p == 'file:create'
-			filepath = path.dirname(req.body.path)
-			
-		model.File.findOne {path: {$in: [filepath, "#{filepath}/"]}}, (err, file) ->
-			if err or file == null
-				return res.json 501, error: err
-			if file.createdBy.id == user._id.id
-				return next()
-			perm = [p, file.path.replace(home, '%home')].join(':')
-			req.user?.checkPermission(perm).then (permitted) ->
-				logger.debug "#{user.username} #{perm}: #{permitted}"
-				if permitted
-					return next()
-				else res.json 401, error: 'Unauthorzied access'
 
 module.exports =
 	field:				field
 	order:				order
 	order_by:			order_by
 	newHome:			newHome
-	ensurePermission:	ensurePermission

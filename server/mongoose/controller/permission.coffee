@@ -14,6 +14,7 @@ class Permission
 		
 	@create: (user, data) ->
 		return new Promise (fulfill, reject) ->
+			data.createdBy = user
 			perm = new model.Permission data
 			perm.save (err, perm) ->
 				if err

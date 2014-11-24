@@ -5,8 +5,8 @@ passport = require 'passport'
 lib = require '../lib.coffee'
 newHome = lib.newHome
 ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
-ensurePermission = lib.ensurePermission
 middleware = require '../../../middleware.coffee'
+ensurePermission = middleware.ensurePermission
  
 authURL = path.join(env.path, env.oauth2.authURL)
 bearer = middleware.rest.user
@@ -23,17 +23,17 @@ bearer = middleware.rest.user
 		handler = middleware.rest.handler(@response)
 		controller.File.tag(@request.user).then handler.fulfill, handler.reject
 		
-	@post api, bearer, newHome(), ensurePermission('file:create'), ->
+	@post api, bearer, newHome(), ensurePermission('write'), ->
 		controller.File.create(@request, @response) 
 		
-	@get api, bearer, newHome(), ensurePermission('file:read'), ->
+	@get api, bearer, newHome(), ensurePermission('read'), ->
 		controller.File.read(@request, @response)
 			
-	@put api, bearer, newHome(), ensurePermission('file:update'), ->
+	@put api, bearer, newHome(), ensurePermission('write'), ->
 		controller.File.update(@request, @response)
 		
-	@del api, bearer, newHome(), ensurePermission('file:delete'), ->
+	@del api, bearer, newHome(), ensurePermission('write'), ->
 		controller.File.delete(@request, @response)
 		
-	@get path, ensureLoggedIn(authURL), ensurePermission('file:read'), ->
+	@get path, ensureLoggedIn(authURL), ensurePermission('read'), ->
 		controller.File.open(@request, @response)

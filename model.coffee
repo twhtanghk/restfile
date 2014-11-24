@@ -5,7 +5,7 @@ path = require 'path'
 mongoose = require 'mongoose'
 findOrCreate = require 'mongoose-findorcreate'
 taggable = require 'mongoose-taggable'
-Promise = require 'promise'
+Promise = require './promise.coffee'
 
 mongoose.connect env.dbUrl, { db: { safe: true }}, (err) ->
   	if err
@@ -20,11 +20,17 @@ PermissionSchema = new mongoose.Schema
 	userGrp:	{ type: String, required: true }
 	fileGrp:	{ type: String, required: true }
 	action:		[ { type: String } ]
+	createdBy:	{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 
 PermissionSchema.statics =
 	ordering_fields: ->
 		order: 1, userGrp: 1, fileGrp: 1
 		
+PermissionSchema.methods =
+	implies: (user, file, action) ->
+		if not _.contains file.tags @fileGrp
+			return false
+	
 PermissionSchema.plugin(findOrCreate)
 
 Permission = mongoose.model 'Permission', PermissionSchema

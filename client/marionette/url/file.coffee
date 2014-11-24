@@ -5,9 +5,6 @@ _ = require 'underscore'
 Backbone = require 'backbone'
 Marionette = require 'backbone.marionette'
 
-reject = (err) ->
-	vent.trigger 'show:msg', err, 'error'
-
 class Router extends Backbone.Router
 	routes:
 		'file':				'list'
@@ -29,20 +26,20 @@ class Router extends Backbone.Router
 		@user.then (me) =>
 			fulfill = =>
 				@content.show new controller.FileListView(collection: @collection)
-			@collection.fetch().then fulfill, reject
+			@collection.fetch().then fulfill, vent.error
 		
 	icon: ->
 		@user.then (me) =>
 			fulfill = =>
 				@content.show new controller.FileIconListView(collection: @collection)
-			@collection.fetch().then fulfill, reject
+			@collection.fetch().then fulfill, vent.error
 		
 	auth: ->
 		@user.then (me) =>
 			permissions = new model.Permissions()
 			fulfill = =>
 				@content.show new controller.AuthListView(collection: permissions)
-			permissions.fetch().then fulfill, reject
+			permissions.fetch().then fulfill, vent.error
 	
 module.exports =
 	Router:		Router
