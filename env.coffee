@@ -18,7 +18,7 @@ env =
 	oauth2:
 		authorizationURL:	"#{url}/oauth2/authorize/"
 		tokenURL:			"#{url}/oauth2/token/"
-		profileURL:			"#{url}/api/users/me"
+		profileURL:			"#{url}/api/users/me/"
 		verifyURL:			"#{url}/oauth2/verify/"
 		callbackURL:		"#{serverUrl}/auth/provider/callback"
 		provider:			require 'passport-ttsoon'
