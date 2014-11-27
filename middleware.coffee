@@ -21,7 +21,7 @@ passport.deserializeUser (id, done) ->
 	model.User.findById id, (err, user) ->
 		done(err, user)
 
-verifyToken = (token) ->
+verifyToken = (token, scope) ->
 	opts = 
 		timeout:	envClient.promise.timeout
 		ca:			ca
@@ -33,11 +33,11 @@ verifyToken = (token) ->
 			if err or res.statusCode != 200
 				return reject('Unauthorized access')
 					
-			# check required scope authorized or not
-			scope = body.scope.split(' ')
-			result = _.intersection scope, envClient.oauth2.scope
-			if result.length != envClient.oauth2.scope.length
-				return reject('Unauthorized access to #{envClient.oauth2.scope}')
+			# check required scope is authorized or not
+			authScope = body.scope.split(' ')
+			result = _.intersection scope, authScope
+			if result.length != authScope.length
+				return reject('Unauthorized access to #{scope}')
 				
 			# create user
 			# otherwise check if user registered before (defined in model.User or not)
@@ -53,13 +53,15 @@ passport.use 'bearer', new bearer.Strategy {}, (token, done) ->
 		done(null, user)
 	reject = (err) ->
 		done(err, null)
-	verifyToken(token).then fulfill, reject
+	verifyToken(token, envClient.oauth2.scope).then fulfill, reject
 	
 passport.use 'provider', new env.oauth2.provider.Strategy env.oauth2, (token, refreshToken, profile, done) ->
-	model.User.findOne(url: profile.id).exec (err, user) ->
-		if err
-			return done(err, null)
-		done(err, user)
+	fulfill = (user) ->
+		user.token = token
+		done(null, user)
+	reject = (err) ->
+		done(err, null)
+	verifyToken(token, env.oauth2.scope).then fulfill, reject
 	
 rest = 
 	user: (req, res, next) ->
@@ -123,6 +125,13 @@ ensurePermission = (p) ->
 			
 		model.File.findOne({path: {$in: [name, "#{name}/"]}}).populate('createdBy').exec().then fulfill, reject 
 		
+nocache = (req, res, next) ->
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+  res.header('Expires', '-1')
+  res.header('Pragma', 'no-cache')
+  next()
+  
 module.exports = 
 	rest:				rest
+	nocache:			nocache
 	ensurePermission:	ensurePermission

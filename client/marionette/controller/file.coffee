@@ -634,12 +634,9 @@ class AuthCreateView extends Marionette.ItemView
 		
 	constructor: (opts = {}) ->
 		super(opts)
-		fulfill = =>
-			@render()
 		@userGrp = new scope.model.UserGrps()
 		@fileGrp = new scope.model.FileGrps()
-		Promise.all([@userGrp.fetch(reset: true), @fileGrp.fetch(reset: true)]).then fulfill, vent.error
-	
+		
 	add: (event) ->
 		event.preventDefault()
 		model = new scope.model.Permission(@form.getValue(), collection: @collection)

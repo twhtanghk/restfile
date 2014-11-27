@@ -8,7 +8,7 @@ ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 middleware = require '../../../middleware.coffee'
 ensurePermission = middleware.ensurePermission
  
-authURL = path.join(env.path, env.oauth2.authURL)
+authURL = path.join(env.app.path, env.oauth2.authURL)
 bearer = middleware.rest.user
 
 @include = ->

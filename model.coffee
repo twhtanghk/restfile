@@ -7,7 +7,7 @@ findOrCreate = require 'mongoose-findorcreate'
 taggable = require 'mongoose-taggable'
 Promise = require './promise.coffee'
 
-mongoose.connect env.dbUrl, { db: { safe: true }}, (err) ->
+mongoose.connect env.db.url, { db: { safe: true }}, (err) ->
   	if err
   		console.log "Mongoose - connection error: #{err}"
   	else console.log "Mongoose - connection OK"
@@ -87,7 +87,7 @@ User = mongoose.model 'User', UserSchema
 
 class FileUtil 
 	@abspath: (path) ->
-		"#{env.file.uploadDir}/#{path}"
+		"#{env.app.uploadDir}/#{path}"
 			
 	@isDir: (path) ->
 		/\/$/.test path
@@ -98,12 +98,12 @@ class FileUtil
 	# ignore exception if path already exists
 	@newDir: (path) ->
 		try 
-			fs.mkdirSync FileUtil.abspath(path), env.file.mode
+			fs.mkdirSync FileUtil.abspath(path), env.app.mode
 		catch
 			return
 	
 	@newFile: (path) ->
-		fs.openSync FileUtil.abspath(path), 'w', env.file.mode
+		fs.openSync FileUtil.abspath(path), 'w', env.app.mode
 		
 	@rm: (path) ->
 		func = if FileUtil.isDir(path) then fs.rmdirSync else fs.unlinkSync 
@@ -174,7 +174,7 @@ FileSchema.pre 'save', (next) ->
 			next()
 			
 		if @stream?
-			out = fs.createWriteStream FileUtil.abspath(@path), mode: env.file.mode
+			out = fs.createWriteStream FileUtil.abspath(@path), mode: env.app.mode
 			@stream.pipe(out)
 			out.on 'finish', =>
 				success()

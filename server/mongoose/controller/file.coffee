@@ -51,7 +51,7 @@ class File
 		model.File.findOne(path: path).populate('createdBy updatedBy').exec (err, file) ->
 			if err or file == null
 				return error res, if err then err else "File not found"
-			path = "#{env.file.uploadDir}/#{file.path}"
+			path = "#{env.app.uploadDir}/#{file.path}"
 			res.download path 
 	
 	@open: (req, res) ->

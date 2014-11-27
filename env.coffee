@@ -1,36 +1,43 @@
 proj = 'file'
-path = "/#{proj}"
-authServer = 'mppsrc.ogcio.hksarg'
-url = "https://#{authServer}/org"
-serverUrl =	"http://localhost:3000/#{proj}"
 
+app =
+	url:	"http://localhost:3000/#{proj}"
+	
+oauth2 =
+	url:	'https://mppsrc.ogcio.hksarg/org'
+	
 env =
-	proj:	proj
+	proj:		proj
+	pageSize:	10
+	log4js: 	require 'log4js'
+	
 	role:
 		all:	'All Users'
 		admin:	'Admin'
-	serverUrl:	"http://localhost:3000/#{proj}"
-	path:		path
-	file:
+	
+	db:
+		url:		"mongodb://#{proj}rw:pass1234@localhost/#{proj}"
+	
+	app:
+		url:		"http://localhost:3000/#{proj}"
+		path:		"/#{proj}"
 		uploadDir:	"#{__dirname}/uploads"
 		mode:		parseInt('0700', 8)
-	dbUrl:		"mongodb://#{proj}rw:pass1234@localhost/#{proj}"
+		
 	oauth2:
-		authorizationURL:	"#{url}/oauth2/authorize/"
-		tokenURL:			"#{url}/oauth2/token/"
-		profileURL:			"#{url}/api/users/me/"
-		verifyURL:			"#{url}/oauth2/verify/"
-		callbackURL:		"#{serverUrl}/auth/provider/callback"
+		url:				app.url
+		authorizationURL:	"#{oauth2.url}/oauth2/authorize/"
+		tokenURL:			"#{oauth2.url}/oauth2/token/"
+		profileURL:			"#{oauth2.url}/api/users/me/"
+		verifyURL:			"#{oauth2.url}/oauth2/verify/"
+		callbackURL:		"#{app.url}/auth/provider/callback"
 		provider:			require 'passport-ttsoon'
 		authURL:			"/auth/provider"
 		cbURL:				"/auth/provider/callback"
 		clientID:			"#{proj}DEVAuth"
 		clientSecret:		'pass1234'
-		scope:		[
-			"https://#{authServer}/org/users"
-		]
-	pageSize:	10
-	log4js: 	require 'log4js'
+		scope:				[ "#{oauth2.url}/users" ]
+	
 	xmpp:
 		url:	'https://mppsrc.ogcio.hksarg/im/api/roster/<%= obj.owner %>'
 	

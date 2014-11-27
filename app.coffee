@@ -12,6 +12,7 @@ _ = require 'underscore'
 fs = require 'fs'
 busboy = require 'connect-busboy'
 bodyParser = require 'body-parser'
+middleware = require './middleware.coffee'
 
 i18n.configure
 	locales:		['en', 'zh', 'zh-tw']
@@ -22,9 +23,9 @@ port = process.env.PORT || 3000
 
 require('zappajs') port, ->
 	@set 'view engine': 'jade'
-	# strip url with prefix = env.path 
+	# strip url with prefix = env.app.path 
 	@use (req, res, next) ->
-		p = new RegExp('^' + env.path)
+		p = new RegExp('^' + env.app.path)
 		req.url = req.url.replace(p, '')
 		next()
 	@use 'logger', 'cookieParser', session:{secret:'keyboard cat'}, 'methodOverride'
@@ -42,6 +43,7 @@ require('zappajs') port, ->
 	@use static: __dirname + '/public'
 	@use 'zappa'
 	@use i18n.init
+	@use middleware.nocache
 	# locales
 	@use (req, res, next) ->
 		if req.locale == 'zh' and req.region == 'tw'
@@ -55,10 +57,10 @@ require('zappajs') port, ->
 		
 	@get '/auth/logout', ->
 		@request.logout()
-		@response.redirect('/')
+		@response.redirect env.app.path
 		
 	@get '/', ->
-		@render 'index.jade', {path: env.path, title: 'TTFile'}
+		@render 'index.jade', {path: env.app.path, title: 'TTFile'}
 	
 	@include './server/mongoose/url/user.coffee'
 	@include './server/mongoose/url/role.coffee'
