@@ -15,10 +15,11 @@ files = files.map (file) -> "#{dir}/#{file}"
 ca = files.map (file) -> fs.readFileSync file
 
 passport.serializeUser (user, done) ->
-	done(null, user.id)
+	done(null, { id: user.id, token: user.token })
 	
-passport.deserializeUser (id, done) ->
-	model.User.findById id, (err, user) ->
+passport.deserializeUser (obj, done) ->
+	model.User.findById obj.id, (err, user) ->
+		user.token = obj.token
 		done(err, user)
 
 verifyToken = (token, scope) ->

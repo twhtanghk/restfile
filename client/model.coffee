@@ -275,15 +275,17 @@ class UserGrps extends Backbone.Collection
 	roster: new im.Roster()
 	
 	fetch: (opts = {}) ->
-		return new Promise (fulfill, reject) =>
-			success = =>
-				keys = _.keys @roster.groups()
-				keys = _.map keys, (tag) ->
-					tag: tag
-				@set keys, opts
+		fulfill = opts.success
+		success = =>
+			keys = _.keys @roster.groups()
+			keys = _.map keys, (tag) ->
+				tag: tag
+			@set keys, opts
+			if fulfill
 				fulfill(arguments)
-			@roster.fetch(opts).then success, reject
-
+		_.extend opts, success: success
+		@roster.fetch(opts)
+		
 module.exports =
 	Permission:		Permission
 	Permissions:	Permissions
