@@ -19,7 +19,7 @@ env =
 		url:		"mongodb://#{proj}rw:pass1234@localhost/#{proj}"
 	
 	app:
-		url:		"http://localhost:3000/#{proj}"
+		url:		app.url
 		path:		"/#{proj}"
 		uploadDir:	"#{__dirname}/uploads"
 		mode:		parseInt('0700', 8)
