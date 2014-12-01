@@ -38,7 +38,7 @@ verifyToken = (token, scope) ->
 			authScope = body.scope.split(' ')
 			result = _.intersection scope, authScope
 			if result.length != authScope.length
-				return reject('Unauthorized access to #{scope}')
+				return reject("Unauthorized access to #{scope}")
 				
 			# create user
 			# otherwise check if user registered before (defined in model.User or not)

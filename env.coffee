@@ -4,7 +4,7 @@ app =
 	url:	"http://localhost:3000/#{proj}"
 	
 oauth2 =
-	url:	'https://mppsrc.ogcio.hksarg/org'
+	url:	'https://mppsrc.ogcio.hksarg'
 	
 env =
 	proj:		proj
@@ -26,17 +26,17 @@ env =
 		
 	oauth2:
 		url:				app.url
-		authorizationURL:	"#{oauth2.url}/oauth2/authorize/"
-		tokenURL:			"#{oauth2.url}/oauth2/token/"
-		profileURL:			"#{oauth2.url}/api/users/me/"
-		verifyURL:			"#{oauth2.url}/oauth2/verify/"
+		authorizationURL:	"#{oauth2.url}/org/oauth2/authorize/"
+		tokenURL:			"#{oauth2.url}/org/oauth2/token/"
+		profileURL:			"#{oauth2.url}/org/api/users/me/"
+		verifyURL:			"#{oauth2.url}/org/oauth2/verify/"
 		callbackURL:		"#{app.url}/auth/provider/callback"
 		provider:			require 'passport-ttsoon'
 		authURL:			"/auth/provider"
 		cbURL:				"/auth/provider/callback"
 		clientID:			"#{proj}DEVAuth"
 		clientSecret:		'pass1234'
-		scope:				[ "#{oauth2.url}/users" ]
+		scope:				[ "#{oauth2.url}/org/users", "#{oauth2.url}/xmpp" ]
 	
 	xmpp:
 		url:	'https://mppsrc.ogcio.hksarg/im/api/roster/<%= obj.owner %>'

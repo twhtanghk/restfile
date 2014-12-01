@@ -276,15 +276,14 @@ class UserGrps extends Backbone.Collection
 	
 	fetch: (opts = {}) ->
 		fulfill = opts.success
-		success = =>
+		success = (collection, res, opts) =>
 			keys = _.keys @roster.groups()
 			keys = _.map keys, (tag) ->
 				tag: tag
 			@set keys, opts
 			if fulfill
-				fulfill(arguments)
-		_.extend opts, success: success
-		@roster.fetch(opts)
+				fulfill(@, res, opts)
+		@roster.fetch(success: success, reset: true)
 		
 module.exports =
 	Permission:		Permission

@@ -32,7 +32,11 @@ class App extends Marionette.Application
 			sync method, model, opts
 				
 		Backbone.ajax = (settings) ->
-			settings.jso_provider = 'oauth2'
+			_.extend settings,
+				jso_provider: 	'oauth2'
+				error:			(xhr, status, err) ->
+					if status != '200'
+						vent.error err
 			jso_ensureTokens oauth2: env.oauth2.scope
 			Backbone.$.oajax(settings)
 		
