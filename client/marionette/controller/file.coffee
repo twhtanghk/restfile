@@ -174,12 +174,12 @@ class NavBar extends Marionette.Layout
 		'click a#removeTags':				'removeTags'
 		'change input.file-upload':			'upload'
 		'click a#download':					'download'
-		'click a#selectAll':					'selectAll'
+		'click a#selectAll':				'selectAll'
 		'click a#deselectAll':				'deselectAll'
 		'click a#icon':						'icon'
 		'click a#list':						'list'
-		'click a#trash':						'trash'
-		'click a#share':						'share'
+		'click a#trash':					'trash'
+		'click a#share':					'share'
 		
 	constructor: (opts) ->
 		home = new Backbone.Model

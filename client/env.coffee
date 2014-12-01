@@ -30,7 +30,7 @@ env =
 	flash:
 		timeout:	3000	# ms	
 	promise:
-		timeout:	300		# ms
+		timeout:	5000	# ms
 	
 _.each env.icons, (val, key) ->
 	env.icons[key] = path.join(env.path, 'img', val)

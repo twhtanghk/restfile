@@ -89,7 +89,8 @@ class File
 			_.extend file, _.pick(req.body, 'path', 'contentType')
 			if not _.isUndefined(req.body.name)
 				file.rename req.body.name
-			file.tags = req.body.tags.split(',')
+			file.tags = _.filter req.body.tags.split(','), (tag) ->
+				tag != ''
 			file.updatedBy = req.user
 			file.save (err) ->
 				if err
