@@ -3,6 +3,18 @@ restfile
 
 Web Server with Restful API to provide File Storage
 
+API
+===
+
+```
+get api/tag - get all file tags of current login user
+post api/file/:path - create file or folder under current login user home directory
+get api/file/:path - get properties (e.g. filename, tags) of the specified file or folder 
+put api/file/:path - update details (e.g. filename, tags, content) of the specified file or folder
+del api/file/:path - delete the specified file or folder
+get :path - get content of the specified file or folder
+```
+
 Configuration
 =============
 

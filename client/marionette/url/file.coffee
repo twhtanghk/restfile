@@ -9,24 +9,23 @@ class Router extends Backbone.Router
 	routes:
 		'file':				'list'
 		'file/list':		'list'
+		'file/list/:path':	'list'
 		'file/icon':		'icon'
 		'file/auth':		'auth'
 		
 	constructor: (opts = {}) ->
 		@header = window.app.getRegion('header')
 		@content = window.app.getRegion('content')
-			
-		@user = model.OGCIOUsers.me()
-		@user.then (me) =>
-			@collection = new model.Dir([], {path: me.homeDir()})
-			@header.show new controller.NavBar collection: @collection
+		@collection = new model.Dir([], {path: window.app.user.homeDir()})
+		@header.show new controller.NavBar collection: @collection
 		super(opts)
 			
-	list: ->
-		@user.then (me) =>
-			fulfill = =>
-				@content.show new controller.FileListView(collection: @collection)
-			@collection.fetch().then fulfill, vent.error
+	list: (path) ->
+		@content.show new controller.FileListView(collection: @collection)
+		if path
+			@collection.cd path
+		else
+			@collection.fetch()
 		
 	icon: ->
 		@user.then (me) =>
@@ -35,11 +34,10 @@ class Router extends Backbone.Router
 			@collection.fetch().then fulfill, vent.error
 		
 	auth: ->
-		@user.then (me) =>
-			permissions = new model.Permissions()
-			fulfill = =>
-				@content.show new controller.AuthListView(collection: permissions)
-			permissions.fetch().then fulfill, vent.error
+		permissions = new model.Permissions()
+		fulfill = =>
+			@content.show new controller.AuthListView(collection: permissions)
+		permissions.fetch().then fulfill, vent.error
 	
 module.exports =
 	Router:		Router

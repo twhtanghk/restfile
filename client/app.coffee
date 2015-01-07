@@ -40,10 +40,10 @@ class App extends Marionette.Application
 			jso_ensureTokens oauth2: env.oauth2.scope
 			Backbone.$.oajax(settings)
 		
-		success = =>
+		success = (user) =>
+			@user = user
 			@router = new router.Router()
-			@user = new user.Router(el: 'div#content')
-			@file = new file.Router(el: 'body')
+			@fileRouter = new file.Router(el: 'body')
 			
 			Backbone.history.start()
 			

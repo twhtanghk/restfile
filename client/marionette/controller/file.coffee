@@ -249,7 +249,7 @@ class NavBar extends Marionette.Layout
 			title:			'share'
 			href:			'#file/auth'
 		
-		btns = [home, newfile, newdir, addTags, removeTags, edit, upload, download, selectAll, deselectAll, icon, list, trash, share]
+		btns = [home, newdir, addTags, removeTags, edit, upload, download, selectAll, deselectAll, icon, list, trash, share]
 		@btns = new lib.BtnGrp	className: 'navbar-btn', collection: new Backbone.Collection btns   
 		
 		@views =

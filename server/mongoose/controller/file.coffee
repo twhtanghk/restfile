@@ -55,7 +55,15 @@ class File
 			res.download path 
 	
 	@open: (req, res) ->
-		res.sendfile model.FileUtil.abspath(req.params[0])
+		path = model.FileUtil.abspath req.params[0]
+		if fs.existsSync path
+			stat = fs.statSync path  
+			if stat.isDirectory()
+				res.redirect #{env.app.url}#file/list/#{req.params[0]}
+			else
+				res.sendfile path
+		else
+			error res, err: "#{req.params[0]} does not exist"
 		
 	@create: (req, res) ->
 		path = req.body.path
