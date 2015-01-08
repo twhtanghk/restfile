@@ -12,7 +12,7 @@ File = scope.model.File
 vent = require '../../vent.coffee'
 path = require 'path'
 
-class DirInput extends Marionette.Layout
+class DirInput extends Marionette.LayoutView
 	id:			'cwd'
 	
 	tagName:	'form'
@@ -54,7 +54,7 @@ class DirInput extends Marionette.Layout
 		event.preventDefault()
 		@collection.cd @$('input#cwd').val() 
 	
-class SearchInput extends Marionette.Layout
+class SearchInput extends Marionette.LayoutView
 	id:			'search'
 	
 	tagName:	'form'
@@ -81,7 +81,7 @@ class SearchInput extends Marionette.Layout
 		event.preventDefault()
 		@collection.search(@$('input#search').val()).then false, vent.error
 				
-class NavMenu extends Marionette.Layout
+class NavMenu extends Marionette.LayoutView
 	id:			'menu'
 	
 	tagName:	'ul'
@@ -133,7 +133,7 @@ class RightMenu extends NavMenu
 		jso_wipe()
 		return true
 			
-class NavBar extends Marionette.Layout
+class NavBar extends Marionette.LayoutView
 	tagName:	'nav'
 	
 	className:	'navbar navbar-default'
@@ -453,30 +453,33 @@ class NavBar extends Marionette.Layout
 		vent.trigger 'show:modal', {header: 'Delete File', body: form.render().el}
 		
 class FileView extends Marionette.ItemView
-	tagName:	'tr'
+	tagName:	'div'
 	
-	className:	'file img-rounded'
+	className:	'file'
 	
 	tag: ->
 		tmpl = """
 			<img src='#{@model.iconUrl()}' alt='<%= obj.basename() %>'>
-			<a href="<%= obj.accessUrl() %>" target='_blank'>
-				<%= obj.toString() %>
-			</a>
+			<a href="<%= obj.accessUrl() %>" target='_blank'><%= obj.toString() %></a>
 		"""
 		_.template tmpl, @model
 		
 	template: (data) =>
-		tmpl = """
-			<td>
-				#{@tag()}
-			</td>
-			<td><%= obj.get('tags').join(', ') %></td>
-			<td><%= obj.get('mtime').toLocaleString() %></td>
-			<td><%= obj.get('contentType') %></td>
-			<td><%= obj.get('size') %></td>
-		"""
-		_.template tmpl, @model
+		_.template """
+			#{@tag()}
+			<span class='tags'>
+				<%= obj.get('tags').join(', ') %>
+			</span>
+			<span class='lastUpdated'>
+				<%= obj.get('mtime').toLocaleString() %>
+			</span>
+			<span class='type'>
+				<%= obj.get('contentType') %>
+			</span>
+			<span class='size'>
+				<%= obj.get('size') %>
+			</span>
+		""", @model
 
 	events:			
 		'click':		'toggleSelect'
@@ -500,51 +503,33 @@ class FileView extends Marionette.ItemView
 class FileIconView extends FileView
 	tagName:	'span'
 	
+	className:	'icon'
+	
 	template: (data) =>
 		@tag()
 
-class FileListView extends Marionette.ItemView
-	listTemplate: (data) =>
-		"""
-			<table>
-				<thead>
-					<tr>
-						<th class='name'>Name</th>
-						<th class='tags'>Tags</th>
-						<th class='lastUpdated'>Last Updated</th>
-						<th class='type'>Type</th>
-						<th class='size'>Size</th>
-					</tr>
-				</thead>
-			</table>
-		"""
-			
+class FileListView extends Marionette.CompositeView
+	childView:				FileView
+	
+	childViewContainer:		'div.file-list'
+	
 	template: (data) =>
-		tmpl = """
+		_.template """
+			<div class='file-list'>
+			</div>
 			<ul class="file-pager pager">
-				<li class="previous <%=obj.collection.hasPreviousPage() ? '' : 'disabled'%>">
+				<li class="previous <%=obj.hasPreviousPage() ? '' : 'disabled'%>">
 					<a href="#">&laquo; prev</a>
 				</li>
-				<li class="next <%=obj.collection.hasNextPage() ? '' : 'disabled'%>">
+				<li class="next <%=obj.hasNextPage() ? '' : 'disabled'%>">
 					<a href="#">next &raquo;</a>
 				</li>
 			</ul>
-		"""
-		return @listTemplate(data) + _.template tmpl, @
+		""", @collection
 		
 	events:
 		'click .file-pager li.previous':	'prev'
 		'click .file-pager li.next':		'next'
-		
-	collectionEvents:
-		'sync':		'render'
-		
-	constructor: (opts) ->
-		super(opts)
-		@view = new Marionette.CollectionView {tagName: 'tbody', className: 'file-list', collection: opts.collection, itemView: FileView}
-			
-	onRender: =>
-		@$('table').append @view.render().el 
 		
 	prev: (event) ->
 		event.preventDefault()
@@ -557,15 +542,7 @@ class FileListView extends Marionette.ItemView
 			@collection.getNextPage()
 		
 class FileIconListView extends FileListView
-	listTemplate: (data) =>
-		""
-		
-	constructor: (opts) ->
-		super(opts)
-		@view = new Marionette.CollectionView {tagName: 'div', className: 'file-list', collection: opts.collection, itemView: FileIconView}
-		
-	onRender: ->
-		@$el.prepend @view.render().el
+	childView:				FileIconView
 		
 class AuthView extends Marionette.ItemView
 	className:	'authlist'
@@ -645,7 +622,7 @@ class AuthCreateView extends Marionette.ItemView
 			vent.trigger 'show:msg', 'saved successfully'
 		model.save().then fulfill, vent.error
 	
-class AuthListView extends Marionette.Layout
+class AuthListView extends Marionette.LayoutView
 	template: (data) ->
 		"""
 			<div class='create'></div>

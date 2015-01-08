@@ -20,13 +20,17 @@ env =
 		newfile:	'New File'
 		newdir:		'New Folder'
 	icons:
-		"text/directory":			"dir.png"
-		"text/plain":				"txt.png"
-		"text/html":				"html.png"
-		"application/javascript":	"js.png"
-		"application/octet-stream":	"dat.png"
-		"application/excel":		"xls.png"
-		"image/png":				"png.png"
+		"text/directory":				"dir.png"
+		"text/plain":					"txt.png"
+		"text/html":					"html.png"
+		"application/javascript":		"js.png"
+		"application/octet-stream":		"dat.png"
+		"application/pdf":				"pdf.png"
+		"application/excel":			"xls.png"
+		"application/x-zip-compressed":	"zip.png"
+		"application/msword":			"doc.png"
+		"image/png":					"png.png"
+		"image/jpeg":					"jpg.png"
 	flash:
 		timeout:	3000	# ms	
 	promise:

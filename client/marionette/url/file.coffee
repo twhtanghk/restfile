@@ -11,6 +11,7 @@ class Router extends Backbone.Router
 		'file/list':		'list'
 		'file/list/:path':	'list'
 		'file/icon':		'icon'
+		'file/icon/:path':	'icon'
 		'file/auth':		'auth'
 		
 	constructor: (opts = {}) ->
@@ -27,11 +28,12 @@ class Router extends Backbone.Router
 		else
 			@collection.fetch()
 		
-	icon: ->
-		@user.then (me) =>
-			fulfill = =>
-				@content.show new controller.FileIconListView(collection: @collection)
-			@collection.fetch().then fulfill, vent.error
+	icon: (path) ->
+		@content.show new controller.FileIconListView(collection: @collection)
+		if path
+			@collection.cd path
+		else
+			@collection.fetch()
 		
 	auth: ->
 		permissions = new model.Permissions()

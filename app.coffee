@@ -2,7 +2,6 @@ clientEnv = require './client/env'
 env = require './env'
 logger = env.log4js.getLogger('app.coffee')
 path = require 'path'
-require './bootstrap'
 model = require './model'
 i18n = require 'i18n'
 passport = require 'passport'

@@ -196,7 +196,7 @@ class Btn extends Marionette.ItemView
 class BtnGrp extends Marionette.CollectionView
 	className:	'btn-group'
 	
-	itemView:	Btn
+	childView:	Btn
 	
 	constructor: (opts = {}) ->
 		if opts.className
