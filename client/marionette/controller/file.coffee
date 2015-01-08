@@ -635,7 +635,7 @@ class AuthListView extends Marionette.LayoutView
 		
 	onRender: ->
 		@create.show new AuthCreateView collection: @collection
-		@list.show new Marionette.CollectionView itemView: AuthView, collection: @collection
+		@list.show new Marionette.CollectionView childView: AuthView, collection: @collection
 	
 module.exports =	
 	NavBar:				NavBar
