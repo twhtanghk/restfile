@@ -19,18 +19,18 @@
 }
 
 .content {
-	.container;
+	.container-fluid;
 	
 	div.alert {
 		margin: .5em;
 	}
 	
 	.file-list {
-		.file:hover {
+		.file:hover, .icon:hover {
 			background-color: #e0f0ff;
 		}
 		
-		.file.selected {
+		.file.selected, icon.selected {
 			background-color: #bbd8ff;
 		}
 	}
@@ -47,15 +47,38 @@
 		}
 		
 		a {
-			width: 150px;
+			.make-xs-column(3);
+			@media (max-width: @screen-xs-max) {
+				width: 150px;
+			}
 		}
 		
-		span.type, span.size {
-			width: 100px;
+		span.tags {
+			.make-xs-column(3);
+			@media (max-width: @screen-xs-max) {
+				width: 150px;
+			}
 		}
 		
-		span.tags, span.lastUpdated {
-			width: 150px;
+		span.lastUpdated {
+			.make-xs-column(3);
+			@media (max-width: @screen-xs-max) {
+				width: 150px;
+			}
+		}
+		
+		span.type {
+			.make-xs-column(2);
+			@media (max-width: @screen-xs-max) {
+				display: none;
+			}
+		}
+		
+		span.size {
+			.make-xs-column(1);
+			@media (max-width: @screen-xs-max) {
+				width: 80px;
+			}
 		}
 		
 		a, span {
