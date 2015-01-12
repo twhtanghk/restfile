@@ -19,7 +19,7 @@ class App extends Marionette.Application
 		
 		# configure to acquire bearer token for all api call from oauth2 server
 		jso_configure 
-			oauth2:
+			file:
 				client_id:		env.oauth2.clientID
 				authorization:	env.oauth2.authUrl
 
@@ -33,11 +33,11 @@ class App extends Marionette.Application
 				
 		Backbone.ajax = (settings) ->
 			_.extend settings,
-				jso_provider: 	'oauth2'
+				jso_provider: 	'file'
 				error:			(xhr, status, err) ->
 					if status != '200'
 						vent.error err
-			jso_ensureTokens oauth2: env.oauth2.scope
+			jso_ensureTokens file: env.oauth2.scope
 			Backbone.$.oajax(settings)
 		
 		success = (user) =>
