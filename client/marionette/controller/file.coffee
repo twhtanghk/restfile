@@ -166,6 +166,12 @@ class NavBar extends Marionette.LayoutView
 		"""	
 	
 	events:
+		'click a':							'hide'
+		'change input#cwd':					'hide'
+		'click .glyphicon-circle-arrow-up':	'hide'
+		'click .glyphicon-refresh':			'hide'
+		'click .glyphicon-search':			'hide'
+		'submit form':						'hide'				
 		'click a#home':						'home'
 		'click a#newfile':					'newfile'
 		'click a#newdir':					'newdir'
@@ -265,6 +271,11 @@ class NavBar extends Marionette.LayoutView
 		@$('div.collapse').append @btns.render().el
 		@$el.append lib.ModalView.getInstance().$el
 		
+	# hide navbar if navbar-toggle is displayed in small screen factor
+	hide: ->
+		if $('.navbar-toggle').css('display') !='none'
+			$('.navbar-collapse').toggleClass('in', false)
+	
 	home: (event) ->
 		@collection.home()
 		 
