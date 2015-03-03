@@ -2,7 +2,7 @@
   <ion-content>
     <ion-list>
       <ion-item ng-repeat="file in files" href="#/file/list/{{file.path}}">
-        {{file.path}}
+        {{file.name}}
       </ion-item>
     </ion-list>
     <ion-infinite-scroll ng-if="state.page < state.total_page" on-infinite="loadMore()">

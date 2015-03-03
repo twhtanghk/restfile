@@ -48,5 +48,11 @@
     "gulp-sass": "^0.7.1",
     "gulp-util": "^3.0.3",
     "shelljs": "^0.3.0"
-  }
+  },
+  "cordovaPlugins": [
+    "com.ionic.keyboard",
+    "org.apache.cordova.console",
+    "org.apache.cordova.device",
+    "org.apache.cordova.inappbrowser"
+  ]
 }
