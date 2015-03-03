@@ -1,15 +1,15 @@
-gulp = require('gulp')
-gutil = require('gulp-util')
-bower = require('bower')
-concat = require('gulp-concat')
-sass = require('gulp-sass')
-minifyCss = require('gulp-minify-css')
-rename = require('gulp-rename')
-sh = require('shelljs')
-coffee = require('gulp-coffee')
-browserify = require('gulp-browserify')
-bower = require('gulp-bower')
-less = require('gulp-less')
+gulp = require 'gulp'
+gutil = require 'gulp-util'
+bower = require 'bower'
+concat = require 'gulp-concat'
+sass = require 'gulp-sass'
+minifyCss = require 'gulp-minify-css'
+rename = require 'gulp-rename'
+sh = require 'shelljs'
+coffee = require 'gulp-coffee'
+browserify = require 'gulp-browserify'
+bower = require 'gulp-bower'
+less = require 'gulp-less'
 
 paths = sass: ['./scss/**/*.scss']
 
@@ -31,6 +31,10 @@ gulp.task 'coffee', ->
     .pipe(browserify({transform : [ 'debowerify' ]}))
   	.pipe(gulp.dest('./www/js/'))
 
+gulp.task 'plugin', ->
+  for plugin in require('./package.json').cordovaPlugins
+  	sh.exec "cordova plugin add #{plugin}"
+  
 gulp.task 'watch', ->
   gulp.watch(paths.sass, ['sass'])
 
