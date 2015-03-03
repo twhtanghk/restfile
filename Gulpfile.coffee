@@ -13,7 +13,7 @@ less = require 'gulp-less'
 
 paths = sass: ['./scss/**/*.scss']
 
-gulp.task 'default', ['sass', 'coffee']
+gulp.task 'default', ['plugin', 'sass', 'coffee']
 
 gulp.task 'sass', (done) ->
   gulp.src('./scss/ionic.app.scss')
