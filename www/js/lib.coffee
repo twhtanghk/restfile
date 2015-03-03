@@ -1,5 +1,0 @@
-require 'ngCordova'
-require 'angular-activerecord'
-window._ = require 'underscore'
-window.$ = require 'jquery'
-window.$.deparam = require 'jquery-deparam'

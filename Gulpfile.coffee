@@ -6,10 +6,9 @@ sass = require 'gulp-sass'
 minifyCss = require 'gulp-minify-css'
 rename = require 'gulp-rename'
 sh = require 'shelljs'
-coffee = require 'gulp-coffee'
-browserify = require 'gulp-browserify'
+browserify = require 'browserify'
 bower = require 'gulp-bower'
-less = require 'gulp-less'
+source = require 'vinyl-source-stream'
 
 paths = sass: ['./scss/**/*.scss']
 
@@ -26,10 +25,12 @@ gulp.task 'sass', (done) ->
     .pipe(gulp.dest('./www/css/'))
     
 gulp.task 'coffee', ->
-  gulp.src('./www/js/*.coffee')
-    .pipe(coffee({bare: true}))
-    .pipe(browserify({transform : [ 'debowerify' ]}))
-  	.pipe(gulp.dest('./www/js/'))
+  browserify(entries: ['./www/js/index.coffee'])
+    .transform('coffeeify')
+    .transform('debowerify')
+    .bundle()
+    .pipe(source('index.js'))
+    .pipe(gulp.dest('./www/js/'))
 
 gulp.task 'plugin', ->
   for plugin in require('./package.json').cordovaPlugins
