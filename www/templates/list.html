@@ -1,0 +1,11 @@
+<ion-view view-title="{{path}}" ng-controller='FileCtrl'>
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="file in files" href="#/file/list/{{file.path}}">
+        {{file.path}}
+      </ion-item>
+    </ion-list>
+    <ion-infinite-scroll ng-if="state.page < state.total_page" on-infinite="loadMore()">
+  	</ion-infinite-scroll>
+  </ion-content>
+</ion-view>
