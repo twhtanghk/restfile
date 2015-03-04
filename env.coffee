@@ -36,10 +36,17 @@ env =
 		cbURL:				"/auth/provider/callback"
 		clientID:			"#{proj}DEVAuth"
 		clientSecret:		'pass1234'
-		scope:				[ "#{oauth2.url}/org/users", "#{oauth2.url}/xmpp" ]
+		scope:				[
+			"https://#{oauth2.url}/org/users",
+			"https://#{oauth2.url}/file",
+			"https://#{oauth2.url}/xmpp"
+		]
 	
 	xmpp:
 		url:	'https://mppsrc.ogcio.hksarg/im/api/roster/<%= obj.owner %>'
+		
+	promise:
+		timeout:	5000	# ms
 	
 env.log4js.configure
 	appenders:	[ type: 'console' ]

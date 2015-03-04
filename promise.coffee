@@ -1,7 +1,7 @@
-envClient = require './client/env.coffee'
+env = require './env.coffee'
 Promise = require 'promise'
 
-Promise.timer = (p, ms = envClient.promise.timeout) ->
+Promise.timer = (p, ms = env.promise.timeout) ->
 	return new Promise (fulfill, reject) ->
         task = null 
         success = (result) ->

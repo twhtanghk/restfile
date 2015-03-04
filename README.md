@@ -20,10 +20,11 @@ Configuration
 
 *   git clone https://github.com/twhtanghk/restfile.git
 *   cd restfile
-*   bower install
-*   npm install
-*	npm run-script dev
-*   update the following environment variables in start.sh, env.cofffee, and client/env.coffee
+*   npm install && bower install
+
+Server
+------
+*   update the following environment variables in start.sh and env.cofffee
     
 ```
     PORT=3000
@@ -40,10 +41,19 @@ Configuration
 		clientSecret:		'password'
 ```
 
-```
-	authServer = 'mob.myvnc.com'
-```
-
 *	create the uploadDir specified in env.coffee
 *	create mongo database
 *	npm start
+
+Client
+------
+*   update the following environment variables in www/js/model.coffee
+
+```
+	url = 'https://mob.myvnc.com'
+```
+
+*	node_modules/.bin/gulp
+*	ionic platform add android
+*	ionic run android
+

@@ -1,4 +1,3 @@
-clientEnv = require './client/env'
 env = require './env'
 logger = env.log4js.getLogger('app.coffee')
 path = require 'path'
@@ -21,7 +20,6 @@ i18n.configure
 port = process.env.PORT || 3000
 
 require('zappajs') port, ->
-	@set 'view engine': 'jade'
 	# strip url with prefix = env.app.path 
 	@use (req, res, next) ->
 		p = new RegExp('^' + env.app.path)
@@ -39,7 +37,7 @@ require('zappajs') port, ->
 		next()
 	@use passport.initialize()
 	@use passport.session()
-	@use static: __dirname + '/public'
+	@use static: __dirname + '/www'
 	@use 'zappa'
 	@use i18n.init
 	@use middleware.nocache

@@ -1,4 +1,3 @@
-envClient = require './client/env.coffee'
 env = require './env.coffee'
 logger = env.log4js.getLogger('middleware.coffee')
 passport = require 'passport'
@@ -24,7 +23,7 @@ passport.deserializeUser (obj, done) ->
 
 verifyToken = (token, scope) ->
 	opts = 
-		timeout:	envClient.promise.timeout
+		timeout:	env.promise.timeout
 		ca:			ca
 		headers:
 			Authorization:	"Bearer #{token}"
@@ -54,7 +53,7 @@ passport.use 'bearer', new bearer.Strategy {}, (token, done) ->
 		done(null, user)
 	reject = (err) ->
 		done(err, null)
-	verifyToken(token, envClient.oauth2.scope).then fulfill, reject
+	verifyToken(token, env.oauth2.scope).then fulfill, reject
 	
 passport.use 'provider', new env.oauth2.provider.Strategy env.oauth2, (token, refreshToken, profile, done) ->
 	fulfill = (user) ->
@@ -80,7 +79,7 @@ isElement = (owner, userGrps, user) ->
 	return new Promise (fulfill, reject) ->
 		url = _.template env.xmpp.url, owner: owner
 		opts = 
-			timeout:	envClient.promise.timeout
+			timeout:	env.promise.timeout
 			ca:			ca
 			headers:
 				Authorization:	"Bearer #{user.token}"

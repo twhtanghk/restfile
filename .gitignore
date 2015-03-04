@@ -9,3 +9,4 @@
 /www/js/*.js
 /.project
 /*.orig
+/npm-debug.log

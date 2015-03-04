@@ -21,6 +21,6 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
 
-.item-avatar img:first-child {
+.item-avatar > img:first-child, .item-avatar .item-content > img:first-child {
 	border-radius: 0;
 }

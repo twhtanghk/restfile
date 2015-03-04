@@ -1,7 +1,24 @@
+url = 'https://mob.myvnc.com'
+
+iconUrl = (type) ->
+	url = 
+		"text/directory":				"img/dir.png"
+		"text/plain":					"img/txt.png"
+		"text/html":					"img/html.png"
+		"application/javascript":		"img/js.png"
+		"application/octet-stream":		"img/dat.png"
+		"application/pdf":				"img/pdf.png"
+		"application/excel":			"img/xls.png"
+		"application/x-zip-compressed":	"img/zip.png"
+		"application/msword":			"img/doc.png"
+		"image/png":					"img/png.png"
+		"image/jpeg":					"img/jpg.png"
+	return if type of url then url[type] else "img/unknown.png"
+		
 model = (ActiveRecord, $q) ->
 
 	User = ActiveRecord.extend
-		$urlRoot: 'https://mob.myvnc.com/org/api/users/'
+		$urlRoot: "#{url}/org/api/users/"
 		
 	User.me = ->
 		user = new User(id: 'me/')
@@ -13,7 +30,7 @@ model = (ActiveRecord, $q) ->
 		p.then fulfill, reject
 			
 	File = ActiveRecord.extend
-		$urlRoot: 'https://mob.myvnc.com/file/api/file'
+		$urlRoot: "#{url}/file/api/file"
 		
 		$idAttribute: 'path'
 		
@@ -21,6 +38,7 @@ model = (ActiveRecord, $q) ->
 			res.atime = new Date(Date.parse(res.atime))
 			res.ctime = new Date(Date.parse(res.ctime))
 			res.mtime = new Date(Date.parse(res.mtime))
+			res.iconUrl = iconUrl(res.contentType) 
 			return res
 	
 	###
@@ -36,6 +54,8 @@ model = (ActiveRecord, $q) ->
 		model = new File(path: opts.path, opts)
 		deferred = $q.defer()
 		fulfill = (response) ->
+			for file in response.data.results
+				file = new File(file, parse: true)
 			deferred.resolve angular.extend response.data,
 				state:
 					count:		response.data.count

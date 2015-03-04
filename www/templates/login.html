@@ -10,7 +10,7 @@
 	  <ion-item class="item-avatar" ng-click="closeLogin(); opts.action();" ng-repeat="(provider, opts) in authProviders">
 	    <img ng-src="{{opts.icon}}" aria-label="{{provider}}">
 	    <h2>{{provider}}</h2>
-      </li>
-    </ul>
+      </ion-item>
+    </ion-list>
   </ion-content>
 </ion-modal-view>
