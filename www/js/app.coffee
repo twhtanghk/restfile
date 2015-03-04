@@ -7,7 +7,7 @@ module.run ($ionicPlatform) ->
 		if (window.StatusBar)
 			StatusBar.styleDefault()
 	
-module.config ($stateProvider, $urlRouterProvider, $httpProvider) ->
+module.config ($stateProvider, $urlRouterProvider) ->
 	$stateProvider.state 'app',
 		url: "/file"
 		abstract: true
