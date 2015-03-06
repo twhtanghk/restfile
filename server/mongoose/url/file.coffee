@@ -26,12 +26,12 @@ bearer = middleware.rest.user
 	@post api, bearer, newHome(), ensurePermission('write'), ->
 		controller.File.create(@request, @response) 
 		
-	@get api, bearer, newHome(), ensurePermission('read'), ->
-		controller.File.read(@request, @response)
-			
 	@get content, bearer, newHome(), ensurePermission('read'), ->
 		controller.File.open(@request, @response)
 		
+	@get api, bearer, newHome(), ensurePermission('read'), ->
+		controller.File.read(@request, @response)
+			
 	@put api, bearer, newHome(), ensurePermission('write'), ->
 		controller.File.update(@request, @response)
 		
