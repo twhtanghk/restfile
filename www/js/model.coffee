@@ -1,7 +1,7 @@
 url = 'https://mob.myvnc.com'
 
 iconUrl = (type) ->
-	url = 
+	icon = 
 		"text/directory":				"img/dir.png"
 		"text/plain":					"img/txt.png"
 		"text/html":					"img/html.png"
@@ -13,7 +13,7 @@ iconUrl = (type) ->
 		"application/msword":			"img/doc.png"
 		"image/png":					"img/png.png"
 		"image/jpeg":					"img/jpg.png"
-	return if type of url then url[type] else "img/unknown.png"
+	return if type of icon then icon[type] else "img/unknown.png"
 		
 model = (ActiveRecord, $q) ->
 
@@ -39,6 +39,7 @@ model = (ActiveRecord, $q) ->
 			res.ctime = new Date(Date.parse(res.ctime))
 			res.mtime = new Date(Date.parse(res.mtime))
 			res.iconUrl = iconUrl(res.contentType) 
+			res.url = "#{url}/file/api/file/content/#{res.path}"
 			return res
 	
 	###

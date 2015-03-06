@@ -1,12 +1,14 @@
 <ion-view view-title="{{path}}" ng-controller='FileCtrl'>
 	<ion-content>
 		<ion-list>
-			<ion-item class="item-avatar" ng-repeat="file in files" href="#/file/list/{{file.path}}">
+			<ion-item class="item-avatar" ng-repeat="file in files" ng-click="file.open()">
 				<img ng-src="{{file.iconUrl}}" aria-label="{{file}}">
-				{{file.name}}
-				{{file.mtime}}
-				{{file.contentType}}
-				{{file.size}}
+				<h2>{{file.name}}</h2>
+				<p>
+					{{file.size}}
+					{{file.mtime.toLocaleString()}}
+					{{file.contentType}}
+				</p>
 			</ion-item>
 		</ion-list>
 		<ion-infinite-scroll ng-if="state.page < state.total_page" on-infinite="loadMore()">

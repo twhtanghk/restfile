@@ -27,7 +27,7 @@
     "passport": "0.1.17",
     "passport-http-bearer": "1.0.1",
     "passport-ttsoon": "https://github.com/twhtanghk/passport-ttsoon/archive/master.tar.gz",
-    "promise": "~4.0.0",
+    "promise": "^4.0.0",
     "restim": "https://github.com/twhtanghk/restim/archive/master.tar.gz",
     "underscore": "~1.6.0",
     "zappajs": "~0.4.22"
@@ -54,6 +54,8 @@
     "com.ionic.keyboard",
     "org.apache.cordova.console",
     "org.apache.cordova.device",
-    "org.apache.cordova.inappbrowser"
+    "org.apache.cordova.inappbrowser",
+    "com.bridge.open",
+    "org.apache.cordova.file-transfer"
   ]
 }
