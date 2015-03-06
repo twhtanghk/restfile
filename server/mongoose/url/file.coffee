@@ -16,8 +16,8 @@ bearer = middleware.rest.user
 	path = new RegExp("^/((?:[^/]+/)*[^/]*)$") 
 	
 	dir = new RegExp "^/api/file/((?:[^/]+/)*)$" 
-	file = new RegExp "^/api/file/((?:[^/]+/)*[^/]+)$"
 	api = new RegExp "^/api/file/((?:[^/]+/)*[^/]*)$"
+	content = new RegExp "^/api/file/content/((?:[^/]+/)*[^/]*)$"
 
 	@get '/api/tag', bearer, ->
 		handler = middleware.rest.handler(@response)
@@ -29,6 +29,9 @@ bearer = middleware.rest.user
 	@get api, bearer, newHome(), ensurePermission('read'), ->
 		controller.File.read(@request, @response)
 			
+	@get content, bearer, newHome(), ensurePermission('read'), ->
+		controller.File.open(@request, @response)
+		
 	@put api, bearer, newHome(), ensurePermission('write'), ->
 		controller.File.update(@request, @response)
 		
