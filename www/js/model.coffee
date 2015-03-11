@@ -1,4 +1,4 @@
-url = 'https://mob.myvnc.com'
+env = require './env.coffee'
 
 iconUrl = (type) ->
 	icon = 
@@ -18,7 +18,7 @@ iconUrl = (type) ->
 model = (ActiveRecord, $q) ->
 
 	User = ActiveRecord.extend
-		$urlRoot: "#{url}/org/api/users/"
+		$urlRoot: "#{env.authUrl}/org/api/users/"
 		
 	User.me = ->
 		user = new User(id: 'me/')
@@ -30,7 +30,7 @@ model = (ActiveRecord, $q) ->
 		p.then fulfill, reject
 			
 	File = ActiveRecord.extend
-		$urlRoot: "#{url}/file/api/file"
+		$urlRoot: "#{env.serverUrl()}/file/api/file"
 		
 		$idAttribute: 'path'
 		
@@ -39,7 +39,7 @@ model = (ActiveRecord, $q) ->
 			res.ctime = new Date(Date.parse(res.ctime))
 			res.mtime = new Date(Date.parse(res.mtime))
 			res.iconUrl = iconUrl(res.contentType) 
-			res.url = "#{url}/file/api/file/content/#{res.path}"
+			res.url = "#{env.serverUrl()}/file/api/file/content/#{res.path}"
 			return res
 	
 	###

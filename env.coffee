@@ -4,7 +4,7 @@ app =
 	url:	"http://localhost:3000/#{proj}"
 	
 oauth2 =
-	url:	'https://mppsrc.ogcio.hksarg'
+	url:	'https://mob.myvnc.com'
 	
 env =
 	proj:		proj
@@ -37,9 +37,9 @@ env =
 		clientID:			"#{proj}DEVAuth"
 		clientSecret:		'pass1234'
 		scope:				[
-			"https://#{oauth2.url}/org/users",
-			"https://#{oauth2.url}/file",
-			"https://#{oauth2.url}/xmpp"
+			"#{oauth2.url}/org/users",
+			"#{oauth2.url}/file",
+			"#{oauth2.url}/xmpp"
 		]
 	
 	xmpp:

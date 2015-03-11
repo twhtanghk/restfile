@@ -1,12 +1,17 @@
-module = angular.module('starter', ['ionic', 'starter.controller'])
+module = angular.module('starter', ['ionic', 'starter.controller', 'http-auth-interceptor'])
 
-module.run ($ionicPlatform) ->
+module.run ($ionicPlatform, $location, $http, authService) ->
 	$ionicPlatform.ready ->
 		if (window.cordova && window.cordova.plugins.Keyboard)
 			cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true)
 		if (window.StatusBar)
 			StatusBar.styleDefault()
-	
+		
+	if $location.url().match /access_token/
+			data = $.deparam $location.url().split("/")[1]
+			$http.defaults.headers.common.Authorization = "Bearer #{data.access_token}"
+			authService.loginConfirmed()
+		
 module.config ($stateProvider, $urlRouterProvider) ->
 	$stateProvider.state 'app',
 		url: "/file"

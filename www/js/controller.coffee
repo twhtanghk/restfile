@@ -1,3 +1,5 @@
+env = require './env.coffee'
+
 AppCtrl = (@scope, ionicModal) ->
 	ionicModal.fromTemplateUrl('templates/login.html', scope: @scope).then (modal) =>
 		@scope.modal = modal
@@ -8,55 +10,40 @@ AppCtrl = (@scope, ionicModal) ->
 	@scope.login = =>
 		@scope.modal.show()
 		
-	@scope.$on 'event:auth-forbidden', =>
-		@scope.login()
-	
-	@scope.$on 'event:auth-loginRequired', =>
-		@scope.login()
-		
-AuthCtrl = (@scope, auth, $q, $http, authService) ->
-	auth.mob = (clientId, scope) ->
-		oauth =
-			url:	"https://mob.myvnc.com/org/oauth2/authorize/"
-			param:
-				response_type:	"token"
-				client_id:		clientId
-				redirectUrl:	"http://localhost/callback"
-				scope:			scope
+AuthCtrl = (@rootScope, @scope, auth, $q, $http, $cordovaInAppBrowser, authService) ->
+	auth.mob = (clientId, scope) =>
 		deferred = $q.defer()
-		cancel = (event) ->
-			deferred.reject("The sign in flow was canceled")
-
-		browserRef = window.open "#{oauth.url}?#{$.param(oauth.param)}", '_blank', 'location=no,clearsessioncache=no,clearcache=no'
-		browserRef.addEventListener "loadstart", (event) ->
-			if (event.url).indexOf('http://localhost/callback') == 0
-				browserRef.removeEventListener 'exit', cancel
-				browserRef.close()
-				deferred.resolve $.deparam event.url.split("#")[1]
-		browserRef.addEventListener 'exit', cancel    
+		url = "#{env.oauth2().authUrl}?#{$.param(env.oauth2().opts)}"
+		mobile = =>
+			document.addEventListener 'deviceready', ->
+				$cordovaInAppBrowser.open(url, '_blank')
+			
+			@rootScope.$on '$cordovaInAppBrowser:loadstart', (e, event) ->
+				if (event.url).indexOf('http://localhost/callback') == 0
+					$cordovaInAppBrowser.close()
+					deferred.resolve $.deparam event.url.split("#")[1]
+			
+			@rootScope.$on '$cordovaInAppBrowser:exit', (e, event) ->
+				deferred.reject("The sign in flow was canceled")    
+		browser = ->
+			window.location.href = url
+		
+		if env.isMobile()
+			mobile()
+		else
+			browser()
+			
 		return deferred.promise
 		
 	fulfill = (data) =>
 		$http.defaults.headers.common.Authorization = "Bearer #{data.access_token}"
 		authService.loginConfirmed()
 				
-	@scope.authProviders =
-		'mob.myvnc.com':
-			icon:	'img/google_32.png'
-			key:	if /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) then 'fileappPRD' else 'fileDEV'
-			scope:	[
-				"https://mob.myvnc.com/org/users"
-				"https://mob.myvnc.com/file"
-				"https://mob.myvnc.com/xmpp"
-			].join(" ")
-			action:	->
-				auth.mob(@key, @scope).then fulfill, alert
-		Google:
-			icon: 	'img/google_32.png'
-			key:	'796465438573-inn6q18ni4lno4tasc4vapcj99ib3udt.apps.googleusercontent.com'
-			scope:	[ 'email' ]
-			action:	->
-				auth.google(@key, @scope).then fulfill, alert
+	@scope.$on 'event:auth-forbidden', =>
+		auth.mob().then fulfill, alert
+	
+	@scope.$on 'event:auth-loginRequired', =>
+		auth.mob().then fulfill, alert
 				
 FileCtrl = ($stateParams, @scope, $location, $window, $http, model) ->
 	@scope = angular.extend @scope,
@@ -132,10 +119,17 @@ FileCtrl = ($stateParams, @scope, $location, $window, $http, model) ->
 		
 	model.User.me().then fulfill, alert 
 		
-config = ->
-	return
+config =  ($cordovaInAppBrowserProvider) ->
+	opts = 
+		location: 'no'
+		clearsessioncache: 'no'
+		clearcache: 'no'
+		toolbar: 'no'
+		
+	document.addEventListener 'deviceready', ->
+		$cordovaInAppBrowserProvider.setDefaultOptions(opts)
 	
-angular.module('starter.controller', ['ionic', 'ngCordova', 'http-auth-interceptor', 'starter.model']).config [config]	
+angular.module('starter.controller', ['ionic', 'ngCordova', 'http-auth-interceptor', 'starter.model']).config ['$cordovaInAppBrowserProvider', config]	
 angular.module('starter.controller').controller 'AppCtrl', ['$scope', '$ionicModal', AppCtrl]
-angular.module('starter.controller').controller 'AuthCtrl', ['$scope', '$cordovaOauth', '$q', '$http', 'authService', AuthCtrl]
+angular.module('starter.controller').controller 'AuthCtrl', ['$rootScope', '$scope', '$cordovaOauth', '$q', '$http', '$cordovaInAppBrowser', 'authService', AuthCtrl]
 angular.module('starter.controller').controller 'FileCtrl', ['$stateParams', '$scope', '$location', '$window', '$http', 'model', FileCtrl]

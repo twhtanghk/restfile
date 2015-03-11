@@ -1,3 +1,5 @@
+env = require './env.coffee'
+
 window.Promise = require 'promise'
 window._ = require 'underscore'
 window.$ = require 'jquery'
