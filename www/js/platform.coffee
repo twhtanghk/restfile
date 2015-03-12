@@ -1,7 +1,7 @@
 env = require './env.coffee'
 Promise = require 'promise'
 
-platform = ($rootScope, $cordovaInAppBrowser, $location) ->
+platform = ($rootScope, $cordovaInAppBrowser, $location, $http) ->
 	# return promise to authenticate user
 	auth = ->
 		url = "#{env.oauth2().authUrl}?#{$.param(env.oauth2().opts)}"
@@ -54,7 +54,7 @@ platform = ($rootScope, $cordovaInAppBrowser, $location) ->
 					alert msg[err.code]
 				fs = (type, size) ->
 					new Promise (fulfill, reject) ->
-						$window.requestFileSystem type, size, fulfill, reject	
+						window.requestFileSystem type, size, fulfill, reject	
 				download = (remote, local, trustAllHosts, opts) ->
 					new Promise (fulfill, reject) ->
 						fileTransfer = new FileTransfer()
@@ -94,4 +94,4 @@ config =  ($cordovaInAppBrowserProvider) ->
 
 angular.module('platform', ['ionic', 'ngCordova']).config ['$cordovaInAppBrowserProvider', config]
 
-angular.module('platform').factory 'platform', ['$rootScope', '$cordovaInAppBrowser', '$location', platform]
+angular.module('platform').factory 'platform', ['$rootScope', '$cordovaInAppBrowser', '$location', '$http', platform]

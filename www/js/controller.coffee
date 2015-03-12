@@ -61,5 +61,5 @@ config = ->
 	
 angular.module('starter.controller', ['ionic', 'ngCordova', 'http-auth-interceptor', 'starter.model', 'platform']).config [config]	
 angular.module('starter.controller').controller 'AppCtrl', ['$scope', '$ionicModal', AppCtrl]
-angular.module('starter.controller').controller 'AuthCtrl', ['$rootScope', '$http', 'platform', AuthCtrl]
+angular.module('starter.controller').controller 'AuthCtrl', ['$rootScope', '$http', 'platform', 'authService', AuthCtrl]
 angular.module('starter.controller').controller 'FileCtrl', ['$stateParams', '$scope', 'platform', 'model', FileCtrl]
