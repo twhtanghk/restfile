@@ -4,7 +4,7 @@ window.Promise = require 'promise'
 window._ = require 'underscore'
 window.$ = require 'jquery'
 window.$.deparam = require 'jquery-deparam'
-if /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+if env.isMobile()
 	window.$.getScript 'cordova.js'
 	
 require 'ngCordova'
@@ -13,3 +13,4 @@ require 'angular-http-auth'
 require './app.coffee'
 require './controller.coffee'
 require './model.coffee'
+require './platform.coffee'

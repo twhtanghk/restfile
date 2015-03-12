@@ -39,7 +39,7 @@ model = (ActiveRecord, $q) ->
 			res.ctime = new Date(Date.parse(res.ctime))
 			res.mtime = new Date(Date.parse(res.mtime))
 			res.iconUrl = iconUrl(res.contentType) 
-			res.url = "#{env.serverUrl()}/file/api/file/content/#{res.path}"
+			res.url = if env.isMobile() then "#{env.serverUrl()}/file/api/file/content/#{res.path}" else "#{env.serverUrl()}/file/#{res.path}" 
 			return res
 	
 	###

@@ -1,9 +1,11 @@
 module.exports =
 	isMobile:	->
 		/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+	platform: ->
+		if @isMobile() then 'mobile' else 'browser'
 	authUrl:	'https://mob.myvnc.com'
 	serverUrl:	->
-		if @isMobile() then 'https://mob.myvnc.com' else 'http://localhost:3000'
+		'https://mob.myvnc.com'
 	oauth2: ->
 		authUrl: "#{@authUrl}/org/oauth2/authorize/"
 		opts:
