@@ -1,16 +1,7 @@
 env = require './env.coffee'
 
-AppCtrl = (@scope, ionicModal) ->
-	ionicModal.fromTemplateUrl('templates/login.html', scope: @scope).then (modal) =>
-		@scope.modal = modal
-
-	@scope.closeLogin = =>
-		@scope.modal.hide()
-	
-	@scope.login = =>
-		@scope.modal.show()
-		
-AuthCtrl = (@rootScope, $http, platform, authService) ->		
+AppCtrl = (@rootScope, $http, platform, authService) ->		
+	# set authorization header once mobile authentication completed
 	fulfill = (data) ->
 		if data?
 			$http.defaults.headers.common.Authorization = "Bearer #{data.access_token}"
@@ -60,6 +51,5 @@ config = ->
 	return
 	
 angular.module('starter.controller', ['ionic', 'ngCordova', 'http-auth-interceptor', 'starter.model', 'platform']).config [config]	
-angular.module('starter.controller').controller 'AppCtrl', ['$scope', '$ionicModal', AppCtrl]
-angular.module('starter.controller').controller 'AuthCtrl', ['$rootScope', '$http', 'platform', 'authService', AuthCtrl]
+angular.module('starter.controller').controller 'AppCtrl', ['$rootScope', '$http', 'platform', 'authService', AppCtrl]
 angular.module('starter.controller').controller 'FileCtrl', ['$stateParams', '$scope', 'platform', 'model', FileCtrl]

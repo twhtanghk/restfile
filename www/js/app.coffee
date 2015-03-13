@@ -7,6 +7,7 @@ module.run ($ionicPlatform, $location, $http, authService) ->
 		if (window.StatusBar)
 			StatusBar.styleDefault()
 		
+	# set authorization header once browser authentication completed
 	if $location.url().match /access_token/
 			data = $.deparam $location.url().split("/")[1]
 			$http.defaults.headers.common.Authorization = "Bearer #{data.access_token}"
