@@ -28,9 +28,9 @@ module.config ($stateProvider, $urlRouterProvider) ->
 
 	$stateProvider.state 'app.list',
 		url: "/list/*path"
-		controller: 'FileCtrl'
 		views:
 			'menuContent':
 				templateUrl: "templates/list.html"
+				controller: 'FileCtrl'
 		
 	$urlRouterProvider.otherwise('/file/list/')

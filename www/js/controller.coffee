@@ -12,8 +12,21 @@ AppCtrl = (@rootScope, $http, platform, authService) ->
 	
 	@rootScope.$on 'event:auth-loginRequired', ->
 		platform.auth().then fulfill, alert
+
+MenuCtrl = (@rootScope, @scope) ->
+	@scope.newFolder = =>
+		@rootScope.$broadcast 'newFolder'
 				
 FileCtrl = ($stateParams, @scope, platform, model) ->
+	@scope.platform = platform
+	
+	@scope.$on 'newFolder', =>
+		folder = new model.File path: "#{@scope.path}New Folder/"
+		folder.$save()
+			.then =>
+				@scope.files.push folder
+			.catch alert
+	
 	@scope = angular.extend @scope,
 		path:		$stateParams.path
 		state:
@@ -25,8 +38,6 @@ FileCtrl = ($stateParams, @scope, platform, model) ->
 		angular.extend @scope.state, res.state
 		angular.forEach res.results, (file, index) =>
 			file = new model.File file, parse: true
-			file.open = ->
-				platform.open(@)
 			@scope.files.push file
 		@scope.$broadcast('scroll.infiniteScrollComplete')
 		
@@ -52,4 +63,5 @@ config = ->
 	
 angular.module('starter.controller', ['ionic', 'ngCordova', 'http-auth-interceptor', 'starter.model', 'platform']).config [config]	
 angular.module('starter.controller').controller 'AppCtrl', ['$rootScope', '$http', 'platform', 'authService', AppCtrl]
+angular.module('starter.controller').controller 'MenuCtrl', ['$rootScope', '$scope', MenuCtrl]
 angular.module('starter.controller').controller 'FileCtrl', ['$stateParams', '$scope', 'platform', 'model', FileCtrl]

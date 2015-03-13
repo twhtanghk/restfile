@@ -1,7 +1,7 @@
-<ion-view view-title="{{path}}" ng-controller='FileCtrl'>
+<ion-view view-title="{{path}}">
 	<ion-content>
 		<ion-list>
-			<ion-item class="item-avatar" ng-repeat="file in files" ng-click="file.open()">
+			<ion-item class="item-avatar" ng-repeat="file in files" ng-click="platform.open(file)">
 				<img ng-src="{{file.iconUrl}}" aria-label="{{file}}">
 				<h2>{{file.name}}</h2>
 				<p>

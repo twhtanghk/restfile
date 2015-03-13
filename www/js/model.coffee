@@ -41,6 +41,9 @@ model = (ActiveRecord, $q) ->
 			res.iconUrl = iconUrl(res.contentType) 
 			res.url = if env.isMobile() then "#{env.serverUrl()}/file/api/file/content/#{res.path}" else "#{env.serverUrl()}/file/#{res.path}" 
 			return res
+			
+		$isNew: ->
+			not @_id?
 	
 	###
 	opts:
