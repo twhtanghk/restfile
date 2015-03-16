@@ -15,7 +15,7 @@ iconUrl = (type) ->
 		"image/jpeg":					"img/jpg.png"
 	return if type of icon then icon[type] else "img/unknown.png"
 		
-model = (ActiveRecord, $q) ->
+model = (ActiveRecord, $rootScope, $q) ->
 
 	User = ActiveRecord.extend
 		$urlRoot: "#{env.authUrl}/org/api/users/"
@@ -35,6 +35,7 @@ model = (ActiveRecord, $q) ->
 		$idAttribute: 'path'
 		
 		$parse: (res, opts) ->
+			res.selected = false
 			res.atime = new Date(Date.parse(res.atime))
 			res.ctime = new Date(Date.parse(res.ctime))
 			res.mtime = new Date(Date.parse(res.mtime))
@@ -44,6 +45,10 @@ model = (ActiveRecord, $q) ->
 			
 		$isNew: ->
 			not @_id?
+			
+		toggleSelect: ->
+			@selected = not @selected
+			$rootScope.$broadcast 'mode:select'	
 	
 	###
 	opts:
@@ -77,4 +82,4 @@ config = ->
 	
 angular.module('starter.model', ['ionic', 'ActiveRecord']).config [config]
 
-angular.module('starter.model').factory 'model', ['ActiveRecord', '$q', model]
+angular.module('starter.model').factory 'model', ['ActiveRecord', '$rootScope', '$q', model]

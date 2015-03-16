@@ -4,6 +4,18 @@
       <ion-nav-buttons side="left">
         <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
         </button>
+        <button class="button" ng-class="mode == 'select' ? '' : 'invisible'" ng-click='selectAll()'>
+          Select all
+        </button>
+        <button class="button" ng-class="mode == 'select' ? '' : 'invisible'" ng-click='deselectAll()'>
+          Deselect all
+        </button>
+        <button class="button" ng-class="mode == 'select' ? '' : 'invisible'" ng-click='destroySel()'>
+          Delete selected
+        </button>
+        <button class="button" ng-class="mode == 'select' ? '' : 'invisible'" ng-click='cancel()'>
+          Cancel
+        </button>
       </ion-nav-buttons>
     </ion-nav-bar>
     <ion-nav-view name="menuContent"></ion-nav-view>
