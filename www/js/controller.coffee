@@ -105,14 +105,13 @@ FileListCtrl = ($scope, $stateParams, model) ->
 		# read next page of files under current path
 		loadMore: ->
 			@collection.$fetch()
-				.then =>
+				.then ->
 					$scope.$broadcast('scroll.infiniteScrollComplete')
 				.catch alert
 					
 	model.User.me()
 		.then (user) =>
-			$scope.path = $stateParams.path || "#{user.username}/"
-			$scope.controller = new FileListView(path: $scope.path)
+			$scope.controller = new FileListView(path: $stateParams.path || "#{user.username}/")
 			$scope.collection = $scope.controller.collection
 		.catch alert
 		
