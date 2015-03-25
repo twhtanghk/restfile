@@ -1,23 +1,28 @@
-<ion-view view-title="{{path}} ({{nselected()}} selected/{{state.count}} total)">
+<ion-view view-title="{{path}} ({{collection.nselected()}} selected/{{collection.count}} total)">
 	<ion-content>
-		<ion-list>
+		<ion-list class='filelist'>
 			<ion-item class="item-avatar" 
-				ng-repeat="file in files"
-				ng-class="file.selected ? 'selected' : ''" 
-				on-hold="file.toggleSelect(); $event.stopPropagation();"
-				on-tap="platform.open(file); $event.stopPropagation();">
-				<img ng-src="{{file.iconUrl}}" aria-label="{{file}}">
-				<h2>{{file.name}}</h2>
+				ng-repeat="file in collection.models"
+				ng-controller="FileCtrl"
+				ng-class="file.selected ? 'selected' : ''"
+				on-hold="file.toggleSelect()"
+				on-tap="file.open()">
+				<img ng-src="{{file.iconUrl}}" aria-label="{{file.name}}">
+				<h2>
+					<span>{{file.name}}</span>
+					<tag-editor ng-model="file.tags" fetch="api/tag" template-url='templates/tag.html' placeholder="Tag (e.g. Team)">
+	  				</tag-editor>
+				</h2>
 				<p>
 					{{file.size}}
 					{{file.mtime.toLocaleString()}}
 					{{file.contentType}}
 				</p>
-				<ion-option-button class="button button-positive icon-left ion-edit" ng-click="edit(file); $event.stopPropagation();">Edit</ion-option-button>
-				<ion-option-button class="button button-assertive icon-left ion-trash-a" ng-click="destroy(file); $event.stopPropagation();">Delete</ion-option-button>
+				<ion-option-button class="button button-positive icon-left ion-edit" on-tap="$event.stopPropagation(); controller.edit(file);">Edit</ion-option-button>
+				<ion-option-button class="button button-assertive icon-left ion-trash-a" on-tap="$event.stopPropagation(); controller.remove(file);">Delete</ion-option-button>
 			</ion-item>
 		</ion-list>
-		<ion-infinite-scroll ng-if="state.page < state.total_page" on-infinite="loadMore()">
+		<ion-infinite-scroll ng-if="collection.state.page < collection.state.total_page" on-infinite="controller.loadMore()">
 		</ion-infinite-scroll>
 	</ion-content>
 </ion-view>

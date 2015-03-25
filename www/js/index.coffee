@@ -10,6 +10,7 @@ if env.isMobile()
 require 'ngCordova'
 require 'angular-activerecord'
 require 'angular-http-auth'
+require 'tagDirective'
 require './app.coffee'
 require './controller.coffee'
 require './model.coffee'

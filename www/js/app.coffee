@@ -1,4 +1,4 @@
-module = angular.module('starter', ['ionic', 'starter.controller', 'http-auth-interceptor'])
+module = angular.module('starter', ['ionic', 'starter.controller', 'http-auth-interceptor', 'ngTagEditor', 'ActiveRecord'])
 
 module.run ($ionicPlatform, $location, $http, authService) ->
 	$ionicPlatform.ready ->
@@ -31,6 +31,6 @@ module.config ($stateProvider, $urlRouterProvider) ->
 		views:
 			'menuContent':
 				templateUrl: "templates/list.html"
-				controller: 'FileCtrl'
+				controller: 'FileListCtrl'
 		
 	$urlRouterProvider.otherwise('/file/list/')

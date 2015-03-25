@@ -97,8 +97,7 @@ class File
 			_.extend file, _.pick(req.body, 'path', 'contentType')
 			if not _.isUndefined(req.body.name)
 				file.rename req.body.name
-			file.tags = _.filter req.body.tags.split(','), (tag) ->
-				tag != ''
+			file.tags = req.body.tags
 			file.updatedBy = req.user
 			file.save (err) ->
 				if err
@@ -116,14 +115,14 @@ class File
 					return error res, err
 				res.json {deleted: true}
 			
-	@tag: (user) ->
+	@tag: (user, search) ->
 		return new Promise (fulfill, reject) ->
 			success = (files) ->
 				tags = []
 				_.each files, (file) ->
 					tags = _.union tags, file.tags
-				tags = _.map tags, (tag) ->
-					tag: tag
+				tags = _.filter tags, (tag) ->
+					(new RegExp(search)).test tag
 				fulfill tags
 			model.File.find(createdBy: user).select('tags').exec().then success, reject 
 				

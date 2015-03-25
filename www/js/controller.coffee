@@ -2,7 +2,7 @@ env = require './env.coffee'
 
 AppCtrl = ($rootScope, $scope, $http, platform, authService) ->	
 	# state
-	$scope = angular.extend $scope,
+	$scope = _.extend $scope,
 		mode:	'open'
 		
 	$rootScope.$on '$stateChangeStart', ->
@@ -18,14 +18,14 @@ AppCtrl = ($rootScope, $scope, $http, platform, authService) ->
 	events =
 		'mode:open': ->
 			$scope.mode = 'open'
-		'mode:select': ->
+		'select:file': (file, selected)->
 			$scope.mode = 'select'
 		'event:auth-forbidden': ->
 			platform.auth().then fulfill, alert
 		'event:auth-loginRequired': ->
 			platform.auth().then fulfill, alert
 			
-	angular.forEach events, (handler, event) =>
+	_.each events, (handler, event) =>
 		$scope.$on event, handler
 		
 	$scope.selectAll = ->
@@ -46,92 +46,75 @@ MenuCtrl = ($rootScope, $scope) ->
 	$scope.newFolder = =>
 		$rootScope.$broadcast 'newFolder'
 				
-FileCtrl = ($scope, $stateParams, platform, model) ->
-	# state
-	$scope = angular.extend $scope,
-		path:		$stateParams.path
-		state:
-			page:		1
-			per_page:	10
-		files:		[]
-		platform:	platform
+FileCtrl = ($scope, $ionicModal, model) ->
+	class FileView
+	
+		constructor: (opts = {}) ->
+			@model = opts.model
+			
+		# update properties of specified file
+		edit: (file) ->
+			$ionicModal.fromTemplateUrl('templates/edit.html', scope: $scope).then (modal) =>
+				$scope.modal = modal
+				$scope.modal.show()
+				
+		remove: (file) ->
+			file.$destroy()
+				.then ->
+					$scope.collection.remove file
+				.catch alert
+			
+	$scope.controller = new FileView(model: $scope.file)
+	
+	$scope.$watchCollection 'file.tags', (newtags, oldtags) ->
+		if newtags.length != oldtags.length
+			$scope.file.$save().catch alert
+
+FileListCtrl = ($scope, $stateParams, model) ->
+	class FileListView
+		# event
+		events:
+			'newFolder':	'create'
+			'select:all':	'selectall'
+			'deselect:all':	'deselectall' 
+			
+		constructor: (opts = {}) ->
+			_.each @events, (handler, event) =>
+				$scope.$on event, @[handler]
+				
+			@path = opts.path
+			@collection = new model.FileList([], path: @path)
+			@loadMore()
 		
-	# event
-	events =
-		'newFolder': ->
-			$scope.create()
-		'select:all': ->
-			_.each $scope.files, (file) ->
+		selectall: =>
+			_.each @collection.models, (file) ->
 				file.selected = true
-		'deselect:all': ->
-			_.each $scope.files, (file) ->
+				
+		deselectall: =>
+			_.each @collection.models, (file) ->
 				file.selected = false
-		'destroy:selected': ->
-			_.each $scope.files, (file) ->
-				if file.selected
-					$scope.destroy file
+		
+		# create folder "New Folder" in current directory 
+		create: =>
+			folder = new model.File path: "#{@path}New Folder/"
+			folder.$save()
+				.then =>
+					@collection.add folder
+				.catch alert
+	
+		# read next page of files under current path
+		loadMore: ->
+			@collection.$fetch()
+				.then =>
+					$scope.$broadcast('scroll.infiniteScrollComplete')
+				.catch alert
 					
-	angular.forEach events, (handler, event) ->
-		$scope.$on event, handler
-		
-	# create folder "New Folder" in current directory 
-	$scope.create = =>
-		folder = new model.File path: "#{$scope.path}New Folder/"
-		folder.$save()
-			.then ->
-				$scope.files.push folder
-			.catch alert
-	
-	# read/refresh first page of files under current directory
-	getPage = (opts) =>
-		model.File.fetchPage(opts)
-			.then (res) ->
-				angular.extend $scope.state, res.state
-				angular.forEach res.results, (file, index) ->
-					file = new model.File file, parse: true
-					$scope.files.push file
-				$scope.$broadcast('scroll.infiniteScrollComplete')
-			.catch alert
-		
-	$scope.read = ->
-		$scope.state.page = 1
-		$scope.files = []
-		opts =
-			path:		$scope.path
-			params:		$scope.state
-		getPage(opts)
-	
-	# read next page of files under
-	$scope.loadMore = ->
-		opts =
-			path:		$scope.path
-			params:		$scope.state
-		opts.params.page++
-		getPage(opts)
-		
-	# update properties of specified file
-	$scope.edit = (file) ->
-		return
-		
-	# delete the specified file (delete folder not supported yet)
-	$scope.destroy = (file) ->
-		file.$destroy()
-			.then ->
-				$scope.state.count--
-				deleted = file
-				$scope.files = _.filter $scope.files, (file) ->
-					file.path != deleted.path
-			.catch alert
-			
-	$scope.nselected = ->
-		(_.where $scope.files, selected: true).length
-			
 	model.User.me()
-		.then (user) ->
-			if $scope.path == null or $scope.path == ''
-				$scope.path = "#{user.username}/"
-			$scope.read()
-		.catch alert 
+		.then (user) =>
+			$scope.path = $stateParams.path || "#{user.username}/"
+			$scope.controller = new FileListView(path: $scope.path)
+			$scope.collection = $scope.controller.collection
+		.catch alert
 		
 config = ->
 	return
@@ -139,4 +122,5 @@ config = ->
 angular.module('starter.controller', ['ionic', 'ngCordova', 'http-auth-interceptor', 'starter.model', 'platform']).config [config]	
 angular.module('starter.controller').controller 'AppCtrl', ['$rootScope', '$scope', '$http', 'platform', 'authService', AppCtrl]
 angular.module('starter.controller').controller 'MenuCtrl', ['$rootScope', '$scope', MenuCtrl]
-angular.module('starter.controller').controller 'FileCtrl', ['$scope', '$stateParams', 'platform', 'model', FileCtrl]
+angular.module('starter.controller').controller 'FileCtrl', ['$scope', '$ionicModal', 'model', FileCtrl]
+angular.module('starter.controller').controller 'FileListCtrl', ['$scope', '$stateParams', 'model', FileListCtrl]

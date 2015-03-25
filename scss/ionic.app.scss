@@ -34,3 +34,20 @@ $select-color:	#bbd8ff;
 		background-color: $select-color;
 	}
 }
+
+.filelist h2 {
+	display: table;
+	
+	> span, > .tag-editor {
+		display: table-cell;
+	}
+	
+	.tag-editor {
+		border: none;
+		background-color: inherit;
+		
+		.tag-input {
+			background-color: inherit;
+		}
+	}
+}

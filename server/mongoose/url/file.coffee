@@ -19,9 +19,9 @@ bearer = middleware.rest.user
 	api = new RegExp "^/api/file/((?:[^/]+/)*[^/]*)$"
 	content = new RegExp "^/api/file/content/((?:[^/]+/)*[^/]*)$"
 
-	@get '/api/tag', bearer, ->
+	@get '/api/tag/:search?', bearer, ->
 		handler = middleware.rest.handler(@response)
-		controller.File.tag(@request.user).then handler.fulfill, handler.reject
+		controller.File.tag(@request.user, @request.params.search).then handler.fulfill, handler.reject
 		
 	@post api, bearer, newHome(), ensurePermission('write'), ->
 		controller.File.create(@request, @response) 
