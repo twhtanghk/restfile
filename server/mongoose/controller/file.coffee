@@ -67,7 +67,7 @@ class File
 		
 	@create: (req, res) ->
 		path = req.body.path
-		file = new model.File {path: path, createdBy: req.user}
+		file = new model.File {path: path, contentType: req.body.contentType, createdBy: req.user}
 		file.stream = req.body.file
 		file.save (err) =>
 			if err
