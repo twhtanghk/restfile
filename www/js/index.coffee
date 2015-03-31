@@ -1,5 +1,8 @@
 env = require './env.coffee'
 
+window.oalert = window.alert
+window.alert = (err) ->
+	window.oalert err.data.error
 window.Promise = require 'promise'
 window._ = require 'underscore'
 window.$ = require 'jquery'
@@ -10,6 +13,7 @@ if env.isMobile()
 require 'ngCordova'
 require 'angular-activerecord'
 require 'angular-http-auth'
+require 'ng-file-upload'
 require 'tagDirective'
 require './app.coffee'
 require './controller.coffee'

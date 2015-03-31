@@ -7,7 +7,7 @@ fs = require 'fs'
 Promise = require '../../../promise.coffee'
 
 error = (res, msg) ->
-	res.json 501, error: msg.err
+	res.json 501, error: if typeof msg == 'string' then msg else msg.message
 
 class File
 	@_list: (req, res) ->
@@ -59,7 +59,7 @@ class File
 		if fs.existsSync path
 			stat = fs.statSync path  
 			if stat.isDirectory()
-				res.redirect #{env.app.url}#file/list/#{req.params[0]}
+				File._list req, res
 			else
 				res.sendfile path
 		else
@@ -67,10 +67,7 @@ class File
 		
 	@create: (req, res) ->
 		path = req.body.path
-		contentType = req.body.contentType
-		if _.isUndefined contentType
-			contentType = 'text/plain'
-		file = new model.File {path: path, contentType: contentType, createdBy: req.user}
+		file = new model.File {path: path, createdBy: req.user}
 		file.stream = req.body.file
 		file.save (err) =>
 			if err
@@ -97,7 +94,7 @@ class File
 			_.extend file, _.pick(req.body, 'path', 'contentType')
 			if not _.isUndefined(req.body.name)
 				file.rename req.body.name
-			file.tags = req.body.tags
+			file.tags = JSON.parse req.body.tags
 			file.updatedBy = req.user
 			file.save (err) ->
 				if err

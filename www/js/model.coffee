@@ -15,7 +15,7 @@ iconUrl = (type) ->
 		"image/jpeg":					"img/jpg.png"
 	return if type of icon then icon[type] else "img/unknown.png"
 		
-model = (ActiveRecord, $rootScope, $q, platform) ->
+model = (ActiveRecord, $rootScope, $upload, platform) ->
 	
 	class User extends ActiveRecord
 		$idAttribute: 'username'
@@ -31,12 +31,19 @@ model = (ActiveRecord, $rootScope, $q, platform) ->
 	class File extends ActiveRecord
 		$idAttribute: 'path'
 	
-		$urlRoot: "#{env.serverUrl()}/file/api/file"
+		$urlRoot: "#{env.serverUrl()}/file/api/file/"
 		
 		constructor: (attrs = {}, opts = {}) ->
 			@$initialize attrs, opts
+			@models = []
+			@length = @models.length
+			@state =
+				count:		0
+				page:		0
+				per_page:	10
+				total_page:	0
 			
-		$parse: (res, opts) ->
+		$parseModel: (res, opts) ->
 			res.selected = false
 			res.atime = new Date(Date.parse(res.atime))
 			res.ctime = new Date(Date.parse(res.ctime))
@@ -45,34 +52,17 @@ model = (ActiveRecord, $rootScope, $q, platform) ->
 			res.url = if env.isMobile() then "#{env.serverUrl()}/file/api/file/content/#{res.path}" else "#{env.serverUrl()}/file/#{res.path}"
 			return res
 			
-		$isNew: ->
-			not @_id?
+		$parseCollection: (res, opts) ->
+			_.each res.results, (value, key) =>
+				res.results[key] = new File(@$parseModel(value))
+			return res
 			
-		toggleSelect: ->
-			@selected = not @selected
-			$rootScope.$broadcast 'mode:select'	
-		
-		open: ->
-			platform.open @
-			
-	class FileList extends ActiveRecord
-		$idAttribute: 'path'
-		
-		$urlRoot: "#{env.serverUrl()}/file/api/file"
-		
-		model: File
-		
-		constructor: (@models = [], opts = {}) ->
-			@$initialize @models, opts
-			
-			@path = opts.path
-			@length = @models.length
-			@state =
-				count:		0
-				page:		0
-				per_page:	10
-				total_page:	0
-			
+		$parse: (res, opts) ->
+			if res.count?
+				@$parseCollection(res, opts)
+			else
+				@$parseModel(res, opts)
+				
 		###
 		opts:
 			params:
@@ -85,16 +75,25 @@ model = (ActiveRecord, $rootScope, $q, platform) ->
 			opts.params.per_page = opts.params.per_page || @state.per_page
 			return new Promise (fulfill, reject) =>
 				super(opts)
-					.then (response) =>
-						for file in response.results
-							@add new @model(file, {parse: true})
+					.then (res) =>
+						@add res.results
 						@state = _.extend @state,
-							count:		response.count
+							count:		res.count
 							page:		opts.params.page
 							per_page:	opts.params.per_page
-							total_page:	Math.ceil(response.count / opts.params.per_page)
-						fulfill @								
+							total_page:	Math.ceil(res.count / opts.params.per_page)
+						fulfill @
 					.catch reject
+				
+		$isNew: ->
+			not @_id?
+			
+		toggleSelect: ->
+			@selected = not @selected
+			$rootScope.$broadcast 'mode:select'	
+		
+		open: ->
+			platform.open @
 			
 		add: (models, opts = {}) ->
 			singular = not _.isArray(models)
@@ -121,14 +120,28 @@ model = (ActiveRecord, $rootScope, $q, platform) ->
 			 
 		nselected: ->
 			(_.where @models, selected: true).length
-		
+			
+		$sync: (op, model, opts) ->
+			if op in ['create', 'update']
+				crudMapping =
+					create:		'POST'
+					read:		'GET'
+					update:		'PUT'
+					"delete":	'DELETE'
+				$upload.upload
+					url:	if op == 'create' then @$urlRoot else @$url()
+					method:	crudMapping[op]
+					fields:	_.pick model, 'name', 'path', 'tags', '__v'
+					file:	model.file
+			else
+				super(op, model, opts)
+				
 	User:		User
 	File:		File
-	FileList:	FileList
 			
 config = ->
 	return
 	
-angular.module('starter.model', ['ionic', 'ActiveRecord']).config [config]
+angular.module('starter.model', ['ionic', 'ActiveRecord', 'angularFileUpload']).config [config]
 
-angular.module('starter.model').factory 'model', ['ActiveRecord', '$rootScope', '$q', 'platform', model]
+angular.module('starter.model').factory 'model', ['ActiveRecord', '$rootScope', '$upload', 'platform', model]

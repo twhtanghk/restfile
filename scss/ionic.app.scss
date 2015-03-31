@@ -51,3 +51,11 @@ $select-color:	#bbd8ff;
 		}
 	}
 }
+
+.button-icon.overlay > i {
+	position: absolute;
+	left: 10%;
+	top: 5%;
+	transform: scale(.4, .4);
+	color: white;
+}

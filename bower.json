@@ -20,6 +20,7 @@
     "jquery-deparam": "~0.2.0",
     "angular-http-auth": "~1.2.2",
     "tagDirective": "https://github.com/twhtanghk/tagDirective/archive/master.tar.gz",
-    "angular-activerecord": "~0.3.0"
+    "angular-activerecord": "~0.3.0",
+    "ng-file-upload": "~3.2.4"
   }
 }

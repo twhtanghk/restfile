@@ -8,8 +8,12 @@ bearer = require 'passport-http-bearer'
 http = require 'needle'
 _ = require 'underscore'
 fs = require 'fs'
-busboy = require 'connect-busboy'
+express = require 'express'
+session = require 'express-session'
 bodyParser = require 'body-parser'
+cookieParser = require 'cookie-parser'
+logging = require 'morgan'
+busboy = require 'connect-busboy'
 middleware = require './middleware.coffee'
 
 i18n.configure
@@ -19,13 +23,18 @@ i18n.configure
 
 port = process.env.PORT || 3000
 
-require('zappajs') port, ->
+require('zappajs') {port: port, express: express}, ->
 	# strip url with prefix = env.app.path 
 	@use (req, res, next) ->
 		p = new RegExp('^' + env.app.path)
 		req.url = req.url.replace(p, '')
 		next()
-	@use 'logger', 'cookieParser', session:{secret:'keyboard cat'}, 'methodOverride'
+	@use logging('combined')
+	@use session
+		resave:				true
+		saveUninitialized:	false
+		secret: 			'keyboard cat'
+	@use cookieParser()
 	@use bodyParser.json()
 	@use busboy(immediate: true)
 	@use (req, res, next) ->

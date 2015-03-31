@@ -1,125 +1,111 @@
 env = require './env.coffee'
 
-AppCtrl = ($rootScope, $scope, $http, platform, authService) ->	
-	# state
-	$scope = _.extend $scope,
-		mode:	'open'
-		
-	$rootScope.$on '$stateChangeStart', ->
-		$scope.mode = 'open'
-	
-	# event
+AppCtrl = ($rootScope, $scope, $http, platform, authService, model) ->	
 	# set authorization header once mobile authentication completed
 	fulfill = (data) ->
 		if data?
 			$http.defaults.headers.common.Authorization = "Bearer #{data.access_token}"
 			authService.loginConfirmed()
 	
-	events =
-		'mode:open': ->
-			$scope.mode = 'open'
-		'select:file': (file, selected)->
-			$scope.mode = 'select'
-		'event:auth-forbidden': ->
-			platform.auth().then fulfill, alert
-		'event:auth-loginRequired': ->
-			platform.auth().then fulfill, alert
-			
-	_.each events, (handler, event) =>
-		$scope.$on event, handler
-		
-	$scope.selectAll = ->
-		$rootScope.$broadcast 'select:all'
-		
-	$scope.deselectAll = ->
-		$rootScope.$broadcast 'deselect:all'
-		
-	$scope.destroySel = ->
-		$rootScope.$broadcast 'destroy:selected'
-		$scope.mode = 'open'
-		
-	$scope.cancel = ->
-		$scope.deselectAll()
-		$scope.mode = 'open'
-		
+	$scope.$on 'event:auth-forbidden', ->
+		platform.auth().then fulfill, alert
+	$scope.$on 'event:auth-loginRequired', ->
+		platform.auth().then fulfill, alert
+	
 MenuCtrl = ($rootScope, $scope) ->
 	$scope.newFolder = =>
 		$rootScope.$broadcast 'newFolder'
 				
-FileCtrl = ($scope, $ionicModal, model) ->
+FileCtrl = ($rootScope, $scope, $stateParams, $location, $ionicModal, model) ->
 	class FileView
 	
+		events:
+			'change:folder':	'cd'
+			'new:folder':		'md'
+		
 		constructor: (opts = {}) ->
+			_.each @events, (handler, event) =>
+				$scope.$on event, @[handler]
+			
 			@model = opts.model
 			
+		home: =>
+			@cd()
+		
+		cd: (folder) ->
+			loc = (folder) ->
+				$location.url("file/list/#{folder}")
+			if _.isEmpty folder or _.isNull folder or _.isUndefined folder
+				model.User.me()
+					.then (user) ->
+						loc("#{user.username}/")
+					.catch alert
+			else
+				loc(folder)
+			
+		md: (folder = 'New Folder/') ->
+			folder = new model.File path: "#{@model.path}#{folder}"
+			folder.$save()
+				.then =>
+					@model.add folder
+				.catch alert
+				
+		# read next page of files under current path
+		loadMore: ->
+			@model.$fetch()
+				.then ->
+					$scope.$broadcast('scroll.infiniteScrollComplete')
+				.catch alert
+		
 		# update properties of specified file
-		edit: (file) ->
+		edit: ->
 			$ionicModal.fromTemplateUrl('templates/edit.html', scope: $scope).then (modal) =>
+				$scope.model.newname = $scope.model.name
 				$scope.modal = modal
 				$scope.modal.show()
 				
 		remove: (file) ->
 			file.$destroy()
-				.then ->
-					$scope.collection.remove file
-				.catch alert
-			
-	$scope.controller = new FileView(model: $scope.file)
-	
-	$scope.$watchCollection 'file.tags', (newtags, oldtags) ->
-		if newtags.length != oldtags.length
-			$scope.file.$save().catch alert
-
-FileListCtrl = ($scope, $stateParams, model) ->
-	class FileListView
-		# event
-		events:
-			'newFolder':	'create'
-			'select:all':	'selectall'
-			'deselect:all':	'deselectall' 
-			
-		constructor: (opts = {}) ->
-			_.each @events, (handler, event) =>
-				$scope.$on event, @[handler]
-				
-			@path = opts.path
-			@collection = new model.FileList([], path: @path)
-			@loadMore()
-		
-		selectall: =>
-			_.each @collection.models, (file) ->
-				file.selected = true
-				
-		deselectall: =>
-			_.each @collection.models, (file) ->
-				file.selected = false
-		
-		# create folder "New Folder" in current directory 
-		create: =>
-			folder = new model.File path: "#{@path}New Folder/"
-			folder.$save()
 				.then =>
-					@collection.add folder
+					@model.remove file
 				.catch alert
-	
-		# read next page of files under current path
-		loadMore: ->
-			@collection.$fetch()
-				.then ->
-					$scope.$broadcast('scroll.infiniteScrollComplete')
-				.catch alert
-					
-	model.User.me()
-		.then (user) =>
-			$scope.controller = new FileListView(path: $stateParams.path || "#{user.username}/")
-			$scope.collection = $scope.controller.collection
-		.catch alert
+			
+		upload: (files) ->
+			_.each files, (local) =>
+				remote = (_.findWhere @model.models, name: local.name) || new model.File path: "#{@model.path}#{local.name}"
+				remote.$save {file: local}
+					.then =>
+						@model.add remote
+					.catch alert
+			
+	if $scope.model?
+		$scope.controller = new FileView(model: $scope.model)
+	else if $stateParams.path != ''
+		$scope.model = new model.File path: $stateParams.path
+		$scope.controller = new FileView(model: $scope.model)
+		$scope.controller.loadMore()
+	else
+		$scope.controller = new FileView(model: $scope.model)
+		$scope.controller.home()
 		
+	$scope.$watchCollection 'files', (newfiles, oldfiles) ->
+		if newfiles?.length? and newfiles?.length != oldfiles?length
+			$scope.controller.upload newfiles
+		
+	$scope.$watchCollection 'model.tags', (newtags, oldtags) ->
+		if newtags?.length != oldtags?.length
+			$scope.model.$save().catch alert
+			
+	###
+	$scope.$watch 'model.path', (newpath, oldpath) ->
+		if newpath != oldpath
+			$scope.controller.cd(newpath)
+	###
+			
 config = ->
 	return
 	
 angular.module('starter.controller', ['ionic', 'ngCordova', 'http-auth-interceptor', 'starter.model', 'platform']).config [config]	
-angular.module('starter.controller').controller 'AppCtrl', ['$rootScope', '$scope', '$http', 'platform', 'authService', AppCtrl]
+angular.module('starter.controller').controller 'AppCtrl', ['$rootScope', '$scope', '$http', 'platform', 'authService', 'model', AppCtrl]
 angular.module('starter.controller').controller 'MenuCtrl', ['$rootScope', '$scope', MenuCtrl]
-angular.module('starter.controller').controller 'FileCtrl', ['$scope', '$ionicModal', 'model', FileCtrl]
-angular.module('starter.controller').controller 'FileListCtrl', ['$scope', '$stateParams', 'model', FileListCtrl]
+angular.module('starter.controller').controller 'FileCtrl', ['$rootScope', '$scope', '$stateParams', '$location', '$ionicModal', 'model', FileCtrl]
