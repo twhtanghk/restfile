@@ -136,7 +136,7 @@ model = (ActiveRecord, $rootScope, $upload, platform) ->
 			res.ctime = new Date(Date.parse(res.ctime))
 			res.mtime = new Date(Date.parse(res.mtime))
 			res.iconUrl = iconUrl(res.contentType) 
-			res.url = if env.isMobile() then "#{env.serverUrl()}/api/file/content/#{res.path}" else "#{env.serverUrl()}/#{res.path}"
+			res.url = if env.isNative() then "#{env.serverUrl()}/api/file/content/#{res.path}" else "#{env.serverUrl()}/#{res.path}"
 			return new File res
 						
 		$parse: (res, opts) ->
