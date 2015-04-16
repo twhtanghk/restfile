@@ -9,7 +9,7 @@ module.exports =
 	imUrl: () ->
 		"https://mob.myvnc.com/im"
 	serverUrl: (path = @path) ->
-		"http://localhost:3000/#{path}"
+		"https://mob.myvnc.com/#{path}"
 	path: 'file'		
 	oauth2: ->
 		authUrl: "#{@authUrl}/org/oauth2/authorize/"
