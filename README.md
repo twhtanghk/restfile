@@ -60,10 +60,11 @@ Server
 
 Client
 ------
-*   update the following environment variables in www/js/model.coffee
+*   update the following environment variables in www/js/env.coffee
 
 ```
-	url = 'https://mob.myvnc.com'
+	serverUrl: (path = @path) ->
+		"https://mob.myvnc.com/#{path}"
 ```
 
 *	node_modules/.bin/gulp
