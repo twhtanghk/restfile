@@ -12,9 +12,9 @@ AppCtrl = ($rootScope, $scope, $http, platform, authService, model) ->
 	$scope.$on 'event:auth-loginRequired', ->
 		platform.auth().then fulfill, alert
 	
-MenuCtrl = ($rootScope, $scope) ->
-	$scope.newFolder = =>
-		$rootScope.$broadcast 'newFolder'
+MenuCtrl = ($scope) ->
+	$scope.env = env
+	$scope.navigator = navigator
 				
 FileCtrl = ($rootScope, $scope, $stateParams, $location, $ionicModal, model) ->
 	class FileView
@@ -196,7 +196,7 @@ config = ->
 	
 angular.module('starter.controller', ['ionic', 'ngCordova', 'http-auth-interceptor', 'starter.model', 'platform']).config [config]	
 angular.module('starter.controller').controller 'AppCtrl', ['$rootScope', '$scope', '$http', 'platform', 'authService', 'model', AppCtrl]
-angular.module('starter.controller').controller 'MenuCtrl', ['$rootScope', '$scope', MenuCtrl]
+angular.module('starter.controller').controller 'MenuCtrl', ['$scope', MenuCtrl]
 angular.module('starter.controller').controller 'FileCtrl', ['$rootScope', '$scope', '$stateParams', '$location', '$ionicModal', 'model', FileCtrl]
 angular.module('starter.controller').controller 'PermissionCtrl', ['$rootScope', '$scope', '$ionicModal', 'model', PermissionCtrl]
 angular.module('starter.controller').controller 'AclCtrl', ['$rootScope', '$scope', 'model', AclCtrl]
