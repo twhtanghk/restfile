@@ -13,11 +13,9 @@ bearer = middleware.rest.user
 
 @include = ->
 
-	path = new RegExp("^/((?:[^/]+/)*[^/]*)$") 
-	
-	dir = new RegExp "^/api/file/((?:[^/]+/)*)$" 
-	api = new RegExp "^/api/file/((?:[^/]+/)*[^/]*)$"
-	content = new RegExp "^/api/file/content/((?:[^/]+/)*[^/]*)$"
+	path = new RegExp "^/((?:[^/]+/)*[^/]*)$"
+	api = new RegExp "^/api/file/((?:[^/]+/)*[^/]*)*$"
+	content = new RegExp "^/api/file/content/((?:[^/]+/)*[^/]*)*$"
 
 	@get '/api/tag/:search?', bearer, ->
 		handler = middleware.rest.handler(@response)

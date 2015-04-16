@@ -17,51 +17,74 @@ iconUrl = (type) ->
 		
 model = (ActiveRecord, $rootScope, $upload, platform) ->
 	
-	class User extends ActiveRecord
-		$idAttribute: 'username'
-		
-		$urlRoot: "#{env.authUrl}/org/api/users/"
-		
+	class Model extends ActiveRecord
 		constructor: (attrs = {}, opts = {}) ->
-			@$initialize attrs, opts
+			@$initialize(attrs, opts)
 			
-		@me: ->
-			(new User(username: 'me/')).$fetch()	
-			
-	class File extends ActiveRecord
-		$idAttribute: 'path'
-	
-		$urlRoot: "#{env.serverUrl()}/file/api/file/"
+		$changedAttributes: (diff) ->
+			_.omit super(diff), '$$hashKey' 
 		
-		constructor: (attrs = {}, opts = {}) ->
-			@$initialize attrs, opts
-			@models = []
+		$save: (values, opts) ->
+			if @$hasChanged()
+				super(values, opts)
+			else
+				return new Promise (fulfill, reject) ->
+					fulfill @
+		
+	class Collection extends Model
+		constructor: (@models = [], opts = {}) ->
+			super({}, opts)
 			@length = @models.length
+					
+		add: (models, opts = {}) ->
+			singular = not _.isArray(models)
+			if singular and models?
+				models = [models]
+			_.each models, (item) =>
+				if not @contains item 
+					@models.push item
+					@length++
+				
+		remove: (models, opts = {}) ->
+			singular = not _.isArray(models)
+			if singular and models?
+				models = [models]
+			_.each models, (model) =>
+				model.$destroy().then =>
+					@models = _.filter @models, (item) =>
+						item[@$idAttribute] != model[@$idAttribute]
+			@length = @models.length
+				
+		contains: (model) ->
+			cond = (a, b) ->
+				a == b
+			if typeof model == 'object'
+				cond = (a, b) =>
+					a[@$idAttribute] == b[@$idAttribute]
+			ret = _.find @models, (elem) =>
+				cond(model, elem) 
+			return ret?	
+		
+		$fetch: (opts = {}) ->
+			return new Promise (fulfill, reject) =>
+				@$sync('read', @, opts)
+					.then (res) =>
+						data = @$parse(res.data, opts)
+						if _.isArray data
+							@add data
+							fulfill @
+						else
+							reject 'Not a valid response type'
+					.catch reject
+		
+	class PageableCollection extends Collection
+		constructor: (models = [], opts = {}) ->
 			@state =
 				count:		0
 				page:		0
 				per_page:	10
 				total_page:	0
-			
-		$parseModel: (res, opts) ->
-			res.selected = false
-			res.atime = new Date(Date.parse(res.atime))
-			res.ctime = new Date(Date.parse(res.ctime))
-			res.mtime = new Date(Date.parse(res.mtime))
-			res.iconUrl = iconUrl(res.contentType) 
-			res.url = if env.isMobile() then "#{env.serverUrl()}/file/api/file/content/#{res.path}" else "#{env.serverUrl()}/file/#{res.path}"
-			return res
-			
-		$parseCollection: (res, opts) ->
-			_.each res.results, (value, key) =>
-				res.results[key] = new File(@$parseModel(value))
-			return res
-			
-		$parse: (res, opts) ->
-			if res.count?
-				@$parseCollection(res, opts)
-			else
-				@$parseModel(res, opts)
+			super(models, opts)
 				
 		###
 		opts:
@@ -74,17 +97,53 @@ model = (ActiveRecord, $rootScope, $upload, platform) ->
 			opts.params.page = @state.page + 1
 			opts.params.per_page = opts.params.per_page || @state.per_page
 			return new Promise (fulfill, reject) =>
-				super(opts)
+				@$sync('read', @, opts)
 					.then (res) =>
-						@add res.results
-						@state = _.extend @state,
-							count:		res.count
-							page:		opts.params.page
-							per_page:	opts.params.per_page
-							total_page:	Math.ceil(res.count / opts.params.per_page)
-						fulfill @
+						data = @$parse(res.data, opts)
+						if data.count? and data.results?
+							@add data.results
+							@state = _.extend @state,
+								count:		data.count
+								page:		opts.params.page
+								per_page:	opts.params.per_page
+								total_page:	Math.ceil(data.count / opts.params.per_page)
+							fulfill @
+						else
+							reject 'Not a valid response type'
 					.catch reject
-				
+		
+	class User extends Model
+		$idAttribute: 'username'
+		
+		$urlRoot: "#{env.authUrl}/org/api/users/"
+			
+		@me: ->
+			(new User(username: 'me/')).$fetch()	
+
+	class File extends PageableCollection
+		$idAttribute: 'path'
+	
+		$urlRoot: "#{env.serverUrl()}/api/file/"
+			
+		constructor: (attrs = {}, opts = {}) ->
+			_.extend @, attrs
+			@isdir = /\/$/.test @path
+			super([], opts)
+			
+		$parseModel: (res, opts) ->
+			res.selected = false
+			res.atime = new Date(Date.parse(res.atime))
+			res.ctime = new Date(Date.parse(res.ctime))
+			res.mtime = new Date(Date.parse(res.mtime))
+			res.iconUrl = iconUrl(res.contentType) 
+			res.url = if env.isMobile() then "#{env.serverUrl()}/api/file/content/#{res.path}" else "#{env.serverUrl()}/#{res.path}"
+			return new File res
+						
+		$parse: (res, opts) ->
+			_.each res.results, (value, key) =>
+				res.results[key] = @$parseModel(res.results[key], opts)
+			return @$parseModel(res, opts)
+			
 		$isNew: ->
 			not @_id?
 			
@@ -95,32 +154,26 @@ model = (ActiveRecord, $rootScope, $upload, platform) ->
 		open: ->
 			platform.open @
 			
-		add: (models, opts = {}) ->
-			singular = not _.isArray(models)
-			if singular and models?
-				models = [models]
-			_.each models, (file) =>
-				if not @contains file 
-					@models.push file
-					@length++
-				
-		remove: (models, opts = {}) ->
-			singular = not _.isArray(models)
-			if singular and models?
-				models = [models]
-			_.each models, (model) =>
-				@models = _.filter @models, (file) =>
-					file[@$idAttribute] != model[@$idAttribute]
-			@length = @models.length
-				
-		contains: (model) ->
-			ret = _.find @models, (file) =>
-				file[@$idAttribute] == model[@$idAttribute] 
-			return ret?				
-			 
 		nselected: ->
 			(_.where @models, selected: true).length
-			
+					
+		$fetch: (opts) ->
+			new Promise (fulfill, reject) =>
+				fetch = =>
+					if @isdir
+						super(opts).then fulfill, reject
+					else
+						fulfill @
+				if _.isEmpty @path or _.isNull @path or _.isUndefined @path
+					User.me()
+						.then (user) =>
+							@path = "#{user.username}/"
+							@isdir = true
+							fetch()
+						.catch reject
+				else
+					fetch()
+	
 		$sync: (op, model, opts) ->
 			if op in ['create', 'update']
 				crudMapping =
@@ -135,9 +188,68 @@ model = (ActiveRecord, $rootScope, $upload, platform) ->
 					file:	model.file
 			else
 				super(op, model, opts)
+			
+	class Permission extends Model
+		$idAttribute: '_id'
+		
+		$urlRoot: "#{env.serverUrl()}/api/permission"
+		
+	class Acl extends PageableCollection
+		$idAttribute: '_id'
+	
+		$urlRoot: "#{env.serverUrl()}/api/permission"
+		
+		$parse: (res, opts) ->
+			_.each res.results, (value, key) =>
+				res.results[key] = new Permission res.results[key]
+			return res
+		
+	class UserGrps extends Collection
+		$idAttribute: 'group'
+		
+		$urlRoot: "#{env.imUrl()}/api/roster"
+		
+		$parse: (res, opts) ->
+			ret = []
+			_.each res, (rosteritem) ->
+				_.each rosteritem.groups, (group) ->
+					if group not in ret
+						ret.push group
+			return ret
+			
+		select: (group) ->
+			_.each @models, (item) ->
+				item.selected = item.group == group
 				
+		selected: ->
+			_.findWhere @models, selected: true
+			
+		toString: ->
+			@selected()?.group
+			
+	class FileGrps extends Collection
+		$idAttribute: 'group'
+		
+		$urlRoot: "#{env.serverUrl()}/api/tag"
+		
+		select: (group) ->
+			_.each @models, (item) ->
+				item.selected = item.group == group
+				
+		selected: ->
+			_.findWhere @models, selected: true
+			
+		toString: ->
+			@selected()?.group
+		
+	Model:		Model
+	Collection:	Collection
 	User:		User
 	File:		File
+	Permission:	Permission
+	Acl:		Acl
+	UserGrps:	UserGrps
+	FileGrps:	FileGrps
 			
 config = ->
 	return

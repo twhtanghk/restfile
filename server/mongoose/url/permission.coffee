@@ -29,6 +29,11 @@ order = (params) ->
 		handler = middleware.rest.handler(@response)
 		controller.Permission.create(@request.user, @request.body).then handler.fulfill, handler.reject
 		
+	@put '/api/permission/:id', middleware.rest.user, ->
+		handler = middleware.rest.handler(@response)
+		id = @request.params.id
+		controller.Permission.update(@request.user, id, @request.body).then handler.fulfill, handler.reject
+	
 	@del '/api/permission/:id', middleware.rest.user, ->
 		handler = middleware.rest.handler(@response)
 		id = @request.params.id

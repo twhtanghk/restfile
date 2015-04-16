@@ -25,12 +25,19 @@ module.config ($stateProvider, $urlRouterProvider) ->
 		views:
 			'menuContent':
 				templateUrl: "templates/search.html"
-
-	$stateProvider.state 'app.list',
-		url: "/list/*path"
+	
+	$stateProvider.state 'app.permission',
+		url: "/permission"
 		views:
 			'menuContent':
-				templateUrl: "templates/list.html"
+				templateUrl: "templates/permission/list.html"
+				controller: "AclCtrl"
+
+	$stateProvider.state 'app.file',
+		url: "/file?path"
+		views:
+			'menuContent':
+				templateUrl: "templates/file/list.html"
 				controller: 'FileCtrl'
 		
-	$urlRouterProvider.otherwise('/file/list/')
+	$urlRouterProvider.otherwise('/file/file')

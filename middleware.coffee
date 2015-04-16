@@ -109,6 +109,8 @@ ensurePermission = (p) ->
 			res.json 401, err
 		
 		fulfill = (file) ->
+			if file == null
+				res.json 501, 'File not found'
 			if file.createdBy.id == user.id
 				return next()
 			success = (perms) ->
