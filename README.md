@@ -68,6 +68,7 @@ Client
 ```
 
 *	node_modules/.bin/gulp
+*	ionic resources android
 *	ionic platform add android
 *	ionic run android
 

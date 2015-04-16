@@ -63,5 +63,8 @@
     "org.apache.cordova.inappbrowser",
     "com.bridge.open",
     "org.apache.cordova.file-transfer"
+  ],
+  "cordovaPlatforms": [
+    "android"
   ]
 }
