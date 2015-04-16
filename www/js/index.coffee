@@ -7,7 +7,7 @@ window.Promise = require 'promise'
 window._ = require 'underscore'
 window.$ = require 'jquery'
 window.$.deparam = require 'jquery-deparam'
-if env.isMobile()
+if env.isNative()
 	window.$.getScript 'cordova.js'
 	
 require 'ngCordova'

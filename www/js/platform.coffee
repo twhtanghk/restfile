@@ -75,7 +75,7 @@ platform = ($rootScope, $cordovaInAppBrowser, $location, $http) ->
 				return true
 				
 		if file.contentType == "text/directory"
-			$location.url("file/list/#{file.path}")
+			$location.url("file/file?path=#{file.path}")
 		else
 			func[env.platform()]()
 			

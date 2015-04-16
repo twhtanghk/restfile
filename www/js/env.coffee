@@ -1,15 +1,20 @@
 module.exports =
-	isMobile:	->
+	isMobile: ->
 		/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+	isNative: ->
+		/^file/i.test(document.URL)
 	platform: ->
-		if @isMobile() then 'mobile' else 'browser'
+		if @isNative() then 'mobile' else 'browser'
 	authUrl:	'https://mob.myvnc.com'
-	serverUrl:	->
-		'https://mob.myvnc.com'
+	imUrl: () ->
+		"https://mob.myvnc.com/im"
+	serverUrl: (path = @path) ->
+		"http://localhost:3000/#{path}"
+	path: 'file'		
 	oauth2: ->
 		authUrl: "#{@authUrl}/org/oauth2/authorize/"
 		opts:
 			response_type:	"token"
 			scope:			"https://mob.myvnc.com/org/users https://mob.myvnc.com/file https://mob.myvnc.com/xmpp"
-			client_id:		if @isMobile() then 'fileappPRD' else 'fileDEV'
-			redirectUrl:	if @isMobile() then 'http://localhost/callback' else 'http://localhost:3000/file/'
+			client_id:		if @isNative() then 'fileappPRD' else 'fileDEV'
+			redirectUrl:	if @isNative() then 'http://localhost/callback' else 'http://localhost:3000/file/'

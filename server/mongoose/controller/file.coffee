@@ -51,8 +51,7 @@ class File
 		model.File.findOne(path: path).populate('createdBy updatedBy').exec (err, file) ->
 			if err or file == null
 				return error res, if err then err else "File not found"
-			path = "#{env.app.uploadDir}/#{file.path}"
-			res.download path 
+			res.json file
 	
 	@open: (req, res) ->
 		path = model.FileUtil.abspath req.params[0]
@@ -67,7 +66,7 @@ class File
 		
 	@create: (req, res) ->
 		path = req.body.path
-		file = new model.File {path: path, createdBy: req.user}
+		file = new model.File {path: path, contentType: req.body.contentType, createdBy: req.user}
 		file.stream = req.body.file
 		file.save (err) =>
 			if err

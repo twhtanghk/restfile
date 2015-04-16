@@ -1,5 +1,6 @@
 model = require '../../../model.coffee'
 Promise = require '../../../promise.coffee'
+_ = require 'underscore'
 
 class Permission
 	@list: (condition, pagination, order) ->
@@ -21,7 +22,19 @@ class Permission
 					reject err
 				else
 					fulfill perm.toJSON()
-					
+	
+	@update: (user, id, data) ->
+		return new Promise (fulfill, reject) ->
+			model.Permission.findOne {_id: id, createdBy: user, __v: data.__v}, (err, perm) ->
+				if err or perm == null
+					reject err || "Permission not found"
+				_.extend perm, _.pick(data, 'order', 'fileGrp', 'userGrp', 'action')
+				perm.save()
+					.then ->
+						fulfill perm.toJSON()
+					.then null, (err) ->
+						reject err
+
 	@delete: (user, id) ->
 		return new Promise (fulfill, reject) ->
 			model.Permission.findById id, (err, perm) ->		

@@ -13,6 +13,12 @@ get api/file/:path - get properties (e.g. filename, tags) of the specified file 
 get api/file/content/:path - get content of the specified file or folder
 put api/file/:path - update details (e.g. filename, tags, content) of the specified file or folder
 del api/file/:path - delete the specified file or folder
+
+post api/permission - create permission
+get api/permission - get list of permissions
+get api/permission/:id - get permission with specified id
+put api/permission/:id - update permission detail with the specified id
+del api/permission/:id - delete permission with the specified id
 ```
 
 Browser
