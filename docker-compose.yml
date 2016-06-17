@@ -13,7 +13,7 @@ services:
   file:
     depends_on:
       - file_mongo
-    image: node
+    image: twhtanghk/restfile
     container_name: file
     hostname: file
     ports:
