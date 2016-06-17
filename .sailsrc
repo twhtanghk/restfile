@@ -1,0 +1,16 @@
+{
+  "generators": {
+    "modules": {
+      "model": "sails-generate-model-coffee",
+      "controller": "sails-generate-controller-coffee"
+    }
+  },
+  "hooks": {
+    "grunt": false,
+    "i18n": false,
+    "views": false,
+    "csrf": false,
+    "session": false,
+    "pubsub": false
+  }
+}

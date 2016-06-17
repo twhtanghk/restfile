@@ -1,74 +1,74 @@
 restfile
 ========
 
-Web Server with Restful API to provide File Storage
+Web Server with Restful API to provide file storage
 
-API
-===
+Server API
+==========
 
+## File
+
+* attributes
+  see [api/models/File.coffee](https://github.com/twhtang/restfile/blob/master/api/models/File.coffee]
+
+* Create
+POST /file
 ```
-get api/tag - get all file tags of current login user
-post api/file/:path - create file or folder under current login user home directory
-get api/file/:path - get properties (e.g. filename, tags) of the specified file or list of file properties of the specified folder 
-get api/file/content/:path - get content of the specified file or folder
-put api/file/:path - update details (e.g. filename, tags, content) of the specified file or folder
-del api/file/:path - delete the specified file or folder
+create file with filename, createdBy (derived by current login user) and file content in multipart form
 
-post api/permission - create permission
-get api/permission - get list of permissions
-get api/permission/:id - get permission with specified id
-put api/permission/:id - update permission detail with the specified id
-del api/permission/:id - delete permission with the specified id
+e.g. curl -D /tmp/h.txt -X POST -H "x-forwarded-email: user@abc.com" -H "Content-Type: multipart/form-data" -F "filename=/usr/src/app/package.json"  -F "file=@/usr/src/app/package.json" http://node-1337.service.consul:1337/file
 ```
 
-Browser
-=======
-
+* List Directory
+GET /dir
 ```
-http://mob.myvnc.com/file/:path - get content of the specified file or folder
-```
-
-Configuration
-=============
-
-*   git clone https://github.com/twhtanghk/restfile.git
-*   cd restfile
-*   npm install && bower install
-
-Server
-------
-*   update the following environment variables in start.sh and env.cofffee
-    
-```
-    PORT=3000
+list files under specified directory in "filename" parameter
+e.g. url -D /tmp/h.txt -H "x-forwarded-email: user@abc.com" http://node-1337.service.consul:1337/file/dir?filename=/usr/src/app
 ```
 
+* Get file content
+GET /file
 ```
-	authServer = 'mob.myvnc.com'
-	
-	file:
-		uploadDir:	"#{__dirname}/uploads"
-	dbUrl:		"mongodb://#{proj}rw:password@localhost/#{proj}"
-	oauth2:
-		clientID:			"#{proj}Auth"
-		clientSecret:		'password'
+get file content of the specified "filename" parameter
+e.g. curl -D /tmp/h.txt -H "x-forwarded-email: user@abc.com" 'http://node-1337.service.consul:1337/file?filename=/usr/src/app/package.json&version=-2'
 ```
 
-*	create the uploadDir specified in env.coffee
-*	create mongo database
-*	npm start
-
-Client
-------
-*   update the following environment variables in www/js/env.coffee
-
+* Get file property of all versions
+GET /file/version
 ```
-	serverUrl: (path = @path) ->
-		"https://mob.myvnc.com/#{path}"
+get property of all versions of the specified "filename" parameter
+e.g. curl -D /tmp/h.txt -H "x-forwarded-email: user@abc.com" http://node-1337.service.consul:1337/file/version?filename=/usr/src/app/package.json
 ```
 
-*	node_modules/.bin/gulp
-*	ionic resources android
-*	ionic platform add android
-*	ionic run android
+* Get file property of specified version
+GET /file/property
+```
+get property of the specified version (default -1) of the specified "filename" parameter
+e.g. curl -D /tmp/h.txt -H "x-forwarded-email: user@abc.com" 'http://node-1337.service.consul:1337/file/property?filename=/usr/src/app/package.json&version=-2'
 
+```
+
+* Update file content
+PUT /file
+```
+update file content with filename, createdBy (derived by current login user) defined in multipart form
+e.g. curl -D /tmp/h.txt -X PUT -H "x-forwarded-email: user@abc.com" -H "Content-Type: multipart/form-data" -F "filename=/usr/src/app/package.json" -F "file=@/usr/src/app/package.json" http://node-1337.service.consul:1337/file
+
+```
+
+* Delete file
+DELETE /file
+```
+rm all file versions with filename, createdBy (derived by current login user) or only the specified versions
+e.g.
+  curl -D /tmp/h.txt -X DELETE -H "x-forwarded-email: user@abc.com" 'http://node-1337.service.consul:1337/file?filename=/usr/src/app/package.json'
+  curl -D /tmp/h.txt -X DELETE -H "x-forwarded-email: user@abc.com" -H "Content-Type: application/json" -d '{"version": [-2, -4]}' 'http://node-1337.service.consul:1337/file?filename=/usr/src/app/package.json'
+```
+
+Installation
+============
+* git clone https://github.com/twhtanghk/restfile
+* create file/conf/production.coffee and customize the settings (optional)
+* export COMPOSE_OPTIONS="-e COMPOSEROOT=${PWD}"
+* docker-compose -f docker-compose.yml up -d
+* curl http://ip:1337/file?...  

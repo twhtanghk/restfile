@@ -1,0 +1,33 @@
+version: '2'
+services:
+  file_mongo:
+    image: mongo
+    container_name: file_mongo
+    hostname: file_mongo
+    ports:
+      - 27017
+    volumes:
+      - ${COMPOSEROOT}/file/data:/data/db
+    command: mongod --directoryperdb
+
+  file:
+    depends_on:
+      - file_mongo
+    image: node
+    container_name: file
+    hostname: file
+    ports:
+      - 1337
+    volumes:
+      - ${COMPOSEROOT}/file/conf:/usr/src/app/config/env
+      - ${COMPOSEROOT}/file/home:/root
+
+  file_oauth2:
+    depends_on:
+      - file
+    image: wingedkiwi/oauth2-proxy
+    container_name: file_oauth2
+    ports:
+      - 4180:4180
+    volumes:
+      - ${COMPOSEROOT}/file/conf/oauth2.conf:/opt/oauth2-proxy/etc/config
