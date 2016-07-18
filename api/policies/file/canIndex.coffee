@@ -1,6 +1,9 @@
-_ = require 'lodash'
+actionUtil = require 'sails/lib/hooks/blueprints/actionUtil'
 
 module.exports = (req, res, next) ->
-  req.options.where ?= {}
-  _.extend req.options.where, 'metadata.createdBy': req.user
-  next()
+  values = actionUtil.parseValues req
+  sails.models.permission
+    .canIndex req.user.email, values.filename
+    .then ->
+      next()
+    .catch next

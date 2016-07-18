@@ -1,0 +1,16 @@
+{
+  "name": "restfile",
+  "private": "true",
+  "devDependencies": {},
+  "dependencies": {
+    "sails.io.js": "^0.13.8",
+    "font-awesome": "^4.6.3",
+    "angular-activerecord": "^0.3.0",
+    "angular-xeditable": "^0.2.0",
+    "bootstrap": "^3.3.6",
+    "jquery": "^3.1.0"
+  },
+  "resolutions": {
+    "jquery": "1.9.1 - 2"
+  }
+}

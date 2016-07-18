@@ -1,21 +1,32 @@
+path = require 'path'
 stream = require 'stream'
+Promise = require 'bluebird'
 _ = require 'underscore'
 actionUtil = require 'sails/lib/hooks/blueprints/actionUtil'
 
-module.exports =
-  dir: (req, res) ->
-    params = actionUtil.parseValues req
-    query = sails.models.file
-      .find 'metadata.dirname': params.filename
-      .where _.omit actionUtil.parseCriteria(req), 'filename'
-      .limit actionUtil.parseLimit req
-      .skip actionUtil.parseSkip req
-      .sort actionUtil.parseSort req
-    actionUtil.populateRequest query, req
-      .then res.ok, res.serverError
+upload = (req, res) ->
+  new Promise (resolve, reject) ->
+    class FStream extends stream.Writable
+      constructor: (opts = {}) ->
+        _.defaults opts, objectMode: true
+        super opts
+      _write: (file, encoding, done) ->
+        data = req.allParams()
+        _.extend file, data, metadata: createdBy: req.user
+        sails.models.file
+          .upload data.filename, req.user.email, file
+          .then (file) ->
+            resolve file
+            done()
+          .catch done
+    fstream = new FStream()
+      .on 'error', reject
+    req.file 'file'
+      .on 'error', reject
+      .pipe fstream
 
+module.exports =
   findAllVersion: (req, res) ->
-    params = actionUtil.parseValues req
     query = sails.models.file
       .find()
       .where actionUtil.parseCriteria req
@@ -27,19 +38,10 @@ module.exports =
   findOne: (req, res) ->
     params = actionUtil.parseValues req
     version = params.version
-    query = sails.models.file
-      .findOne()
-      .where _.omit actionUtil.parseCriteria(req), 'version'
-      .limit -1
-      .skip Math.abs(version) - 1
-      .sort { uploadDate: if version < 0 then -1 else 1 }
-    actionUtil.populateRequest query, req
-      .then (file) ->
-        if file?
-          res.ok file
-        else
-          res.notFound()
-      .catch res.serverError
+    sails.models.file
+      .exist params.filename
+      .then res.ok
+      .catch res.notFound
 
   version: (req, res) ->
     module.exports.findAllVersion req, res
@@ -47,39 +49,26 @@ module.exports =
 
   content: (req, res) ->
     params = actionUtil.parseValues req
-    sails.config.file.storage
-      .read params.filename, params.version
+    sails.models.file.download params.filename, req.user.email
       .then (stream) ->
-        if stream?
-          stream.pipe res
-        else
-          res.notFound()
+        res.attachment encodeURIComponent path.basename params.filename
+        res.set 'Content-Length', stream.length
+        stream
+          .pipe res
+          .on 'finish', res.end
+          .on 'error', Promise.reject
       .catch res.serverError
 
   create: (req, res) ->
-    class Transform extends stream.Transform
-
-      constructor: (opts = {}) ->
-        _.defaults opts, objectMode: true
-        super opts
-      _transform: (file, encoding, done) ->
-        data = req.allParams()
-        done null,  _.extend file, data, metadata: createdBy: req.user
-
-    receiver = sails.config.file.storage.receive()
-      .on 'error', res.serverError
-      .on 'finish', res.ok
-
-    req.file 'file'
-      .on 'error', res.serverError
-      .pipe new Transform()
-      .pipe receiver
+    upload req, res
+      .then res.ok, res.serverError
 
   update: (req, res) ->
-    module.exports.create req, res
-
-  destroy: (req, res) ->
-    params = actionUtil.parseValues req
-    sails.config.file.storage
-      .rm params.filename, params.version
-      .then res.ok, res.serverError
+    switch true
+      when req.is 'multipart/form-data'
+        upload req, res
+          .then res.ok, res.serverError
+      else
+        values = actionUtil.parseValues req
+        sails.models.file.update _.pick(values, 'id'), _.pick(values, 'filename')
+          .then res.ok, res.serverError

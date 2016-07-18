@@ -1,9 +1,17 @@
+path = require 'path'
 mime = require 'mime-types/index.js'
 
 module.exports =
-  # get file properties
-  get: (path) ->
-    sails.models.gridFS.findOne path: path
+  # get file id
+  id: (fullpath) ->
+    sails.models.file.findPath fullpath
+      .then (file) ->
+        file.id
+
+  fullpath: (id) ->
+    sails.models.file.findUp id: id
+      .then (file) ->
+        file.fullpath()
 		
   type: (name) ->
     mime.lookup(name)

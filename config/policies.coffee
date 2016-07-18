@@ -1,12 +1,25 @@
 module.exports = 
   policies:
+    UserController:
+      '*': false
+      find: true
+      findOne: ['user/me']
     FileController:
       '*': false
-      find: ['isAuth']
-      findOne: ['isAuth', 'file/canIndex', 'file/setVersion']
-      version: ['isAuth', 'file/canIndex']
-      content: ['isAuth', 'file/canRead', 'file/setVersion']
-      dir: ['isAuth', 'file/canIndex']
-      create: ['isAuth', 'setOwner', 'file/canCreate']
-      update: ['isAuth', 'file/canUpdate']
-      destroy: ['isAuth', 'file/canDelete']
+      findOne: ['file/idpath']
+      version: ['file/idpath']
+      content: ['file/idpath', 'file/setVersion']
+      create: ['setCreatedBy']
+      update: ['file/idpath', 'setUpdatedBy']
+      destroy: ['file/idpath', 'file/canDelete']
+      mkdir: ['setCreatedBy']
+    DirController:
+      '*': false
+      create: ['setCreatedBy']
+      findOne: ['file/idpath']
+      destroy: ['file/canDelete']
+    PermissionController:
+      '*': false
+      find: ['filterCreatedBy']
+      create: ['setCreatedBy']
+      destroy: true

@@ -107,4 +107,4 @@ cookie_secure = false
 Test
 ====
 * docker exec -it file bash
-* (cd /usr/src/app; npm test)
+* export PORT=8000 && npm test

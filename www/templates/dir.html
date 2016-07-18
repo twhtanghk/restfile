@@ -1,0 +1,21 @@
+<div class="list card dir">
+  <div class="item item-divider item-positive item-input-inset">
+    <label class='item-input-wrapper'>
+      <input type='text' placeholder='folder' ng-value="dir.fullpath()">
+    </label>
+    <i class='fa fa-home fa-2x' ng-click='dir.chdir()'></i>
+    <span class="fa-stack" ng-click="dir.up()">
+      <i class='fa fa-folder-o fa-stack-2x'></i>
+      <i class='fa fa-level-up fa-stack-1x'></i>
+    </span>
+    <span class="fa-stack" ng-click="dir.mkdir()">
+      <i class='fa fa-folder-o fa-stack-2x'></i>
+      <i class='fa fa-plus-square fa-stack-1x'></i>
+    </span>
+    <i class='fa fa-cloud-upload fa-2x' ngf-select="dir.upload($files)" ngf-multiple="true"></i>
+    <i class='fa fa-close fa-2x' ng-click="rmExplorer($index)"></i>
+  </div>
+  <ng-repeat ng-repeat='model in dir.child' ng-include="'templates/file.html'">
+  <ng-repeat>
+  </div>
+</div>

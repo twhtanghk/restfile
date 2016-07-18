@@ -1,0 +1,14 @@
+<a class='item' 
+  ng-click='open()'
+  on-hold='select()'
+  ng-href='{{ url() }}'
+  ng-controller='FileCtrl'>
+  <span
+    editable-text="model.filename" 
+    buttons="no"
+    e-form="form_{{ model.id }}"
+    onbeforesave="model.$save({filename: $data})"
+    oncancel="console.log('cancel')">
+    {{ model.filename }}
+  </span>
+</a>
