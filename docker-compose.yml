@@ -25,9 +25,9 @@ services:
   file_oauth2:
     depends_on:
       - file
-    image: wingedkiwi/oauth2-proxy
+    image: twhtanghk/oauth2_proxy
     container_name: file_oauth2
     ports:
-      - 4180:4180
+      - 4180
     volumes:
       - ${COMPOSEROOT}/file/conf/oauth2.conf:/opt/oauth2-proxy/etc/config
