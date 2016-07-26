@@ -1,7 +1,9 @@
 {
   "name": "restfile",
   "private": "true",
-  "devDependencies": {},
+  "devDependencies": {
+    "ionic": "driftyco/ionic-bower#1.1.1"
+  },
   "dependencies": {
     "sails.io.js": "^0.13.8",
     "font-awesome": "^4.6.3",
@@ -11,6 +13,7 @@
     "jquery": "^3.1.0"
   },
   "resolutions": {
-    "jquery": "1.9.1 - 2"
+    "jquery": "1.9.1 - 2",
+    "angular": "~1.x"
   }
 }
