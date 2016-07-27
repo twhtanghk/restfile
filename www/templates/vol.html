@@ -1,0 +1,18 @@
+<ion-view view-title="Remote Volume">
+  <ion-content>
+    <div class="row responsive-sm">
+      <div class="col">
+        <div ng-repeat="dir in collection">
+          <div ng-include="'templates/dir.html'" ng-if="$even">
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div ng-repeat="dir in collection">
+          <div ng-include="'templates/dir.html'" ng-if="$odd">
+          </div>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
